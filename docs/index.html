@@ -157,6 +157,12 @@
           <span id="headerOperationalText" class="font-medium text-slate-200 text-[11px]">ระบบพร้อมปฏิบัติงาน</span>
         </div>
 
+        <!-- Direct Android APK Download Trigger -->
+        <button type="button" onclick="openApkDownloadModal()" class="px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 text-xs font-semibold transition spring-hover cursor-pointer whitespace-nowrap shadow-xs" title="ดาวน์โหลด Android APK">
+          <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+          <span id="txtBtnDownloadApk">ดาวน์โหลด APK</span>
+        </button>
+
         <!-- Language Segmented Control (Clean Typography) -->
         <div class="flex items-center bg-surface-card p-0.5 rounded-lg border border-surface-border text-xs">
           <button type="button" id="btnLangTh" onclick="setLanguage('th')" class="px-2.5 py-1.5 rounded-md font-semibold transition-all bg-blue-600 text-white shadow-xs" title="สลับเป็นภาษาไทย">
@@ -188,7 +194,7 @@
   </header>
 
   <!-- ================= MAIN WORKSPACE ================= -->
-  <main class="max-w-7xl mx-auto w-full px-3 sm:px-4 pt-4 sm:pt-5 pb-16 flex-1 z-10">
+  <main class="max-w-7xl mx-auto w-full px-3 sm:px-4 pt-4 sm:pt-5 pb-16 flex-1">
 
     <!-- Active User & Operations Banner -->
     <div class="mb-5 p-3.5 sm:p-4 rounded-xl bg-surface-card border border-surface-border flex flex-wrap items-center justify-between gap-3 shadow-xs">
@@ -213,6 +219,10 @@
         <button onclick="refreshTickets()" class="px-3 py-1.5 rounded-lg bg-surface-subtle hover:bg-slate-800 border border-surface-border text-slate-200 hover:text-white flex items-center gap-2 transition spring-hover cursor-pointer shadow-xs whitespace-nowrap">
           <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
           <span id="txtBtnRefresh">รีเฟรช</span>
+        </button>
+        <button type="button" onclick="openApkDownloadModal()" class="px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 hover:text-emerald-200 flex items-center gap-1.5 transition spring-hover cursor-pointer shadow-xs whitespace-nowrap">
+          <svg class="w-3.5 h-3.5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+          <span>Android App (APK)</span>
         </button>
       </div>
     </div>
@@ -475,37 +485,7 @@
 
     </div>
 
-    <!-- ================= TICKET DETAIL POP-UP MODAL (z-index: 9998) ================= -->
-    <div id="ticketDetailModal" class="hidden fixed inset-0 z-[9998] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md transition-all duration-300">
-      <div class="relative w-full max-w-2xl bg-surface-card border border-surface-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        <!-- Modal Header -->
-        <div class="p-4 border-b border-surface-border flex items-center justify-between bg-[#090D16]">
-          <div class="flex items-center gap-2.5">
-            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-            <h3 class="font-bold text-white text-sm" id="modalTicketCode">รายละเอียดตั๋วงาน</h3>
-            <span id="modalTicketStatusBadge"></span>
-          </div>
-          <button onclick="closeTicketDetailModal()" class="w-8 h-8 rounded-lg bg-surface-subtle border border-surface-border text-slate-400 hover:text-white flex items-center justify-center text-base transition cursor-pointer">
-            &times;
-          </button>
-        </div>
-        <!-- Modal Body -->
-        <div class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs custom-scrollbar" id="modalTicketContent">
-          <!-- Populated by openTicketDetailModal -->
-        </div>
-        <!-- Modal Footer -->
-        <div class="p-3.5 border-t border-surface-border bg-[#090D16] flex justify-end gap-2">
-          <button onclick="closeTicketDetailModal()" id="btnModalClose" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer touch-target flex items-center justify-center">
-            ปิดหน้าต่าง
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= FLOATING TOAST NOTIFICATION CONTAINER (z-index: 9999) ================= -->
-    <div id="toastContainer" class="fixed top-4 right-4 sm:top-5 sm:right-5 z-[9999] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
-
-  </main>
+    </main>
 
   <!-- ================= CLIENT LOGIC & LOCALIZATION ENGINE ================= -->
   <script>
@@ -528,6 +508,9 @@
         roleAdmin: "ศูนย์ควบคุม",
         workforceReady: "พร้อมรับงานภาคสนาม",
         btnRefresh: "รีเฟรช",
+        txtBtnDownloadApk: "ดาวน์โหลด APK",
+        txtApkModalTitle: "ดาวน์โหลด Android APK (v1.0.0)",
+        txtApkModalDesc: "เลือกสถาปัตยกรรม CPU ของอุปกรณ์ Android เพื่อดาวน์โหลด:",
         roleBadgeCustomer: "ผู้แจ้งซ่อม",
         roleBadgeTech: "ช่างเทคนิคอาวุโส",
         roleBadgeAdmin: "ศูนย์ควบคุม",
@@ -674,6 +657,9 @@
         roleAdmin: "Dispatcher",
         workforceReady: "Field Active & Available",
         btnRefresh: "Refresh",
+        txtBtnDownloadApk: "Download APK",
+        txtApkModalTitle: "Download Android APK (v1.0.0)",
+        txtApkModalDesc: "Select Android device CPU architecture to download:",
         roleBadgeCustomer: "Client",
         roleBadgeTech: "Senior Field Tech",
         roleBadgeAdmin: "Operations Dispatcher",
@@ -977,6 +963,7 @@
 
       const toast = document.createElement('div');
       toast.className = 'pointer-events-auto p-3.5 rounded-xl border shadow-2xl flex items-start gap-3 transition-all duration-300 transform translate-x-6 opacity-0 backdrop-blur-md';
+      toast.style.cssText = 'position: relative !important; z-index: 1000000 !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85) !important;';
 
       const typeMap = {
         success: {
@@ -2430,6 +2417,16 @@
       }
     }
 
+        // APK Download Modal Controls
+    function openApkDownloadModal() {
+      const modal = document.getElementById('apkDownloadModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+    function closeApkDownloadModal() {
+      const modal = document.getElementById('apkDownloadModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
     // App Initialization
     window.addEventListener('DOMContentLoaded', async () => {
       setLanguage(state.currentLang, true);
@@ -2449,5 +2446,100 @@
       }, 3000);
     });
   </script>
+
+  <!-- ================= TICKET DETAIL POP-UP MODAL (Root Stacking Context) ================= -->
+  <div id="ticketDetailModal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md transition-all duration-300" style="position: fixed !important; z-index: 99998 !important;">
+    <div class="relative w-full max-w-2xl bg-surface-card border border-surface-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <!-- Modal Header -->
+      <div class="p-4 border-b border-surface-border flex items-center justify-between bg-[#090D16]">
+        <div class="flex items-center gap-2.5">
+          <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+          <h3 class="font-bold text-white text-sm" id="modalTicketCode">รายละเอียดตั๋วงาน</h3>
+          <span id="modalTicketStatusBadge"></span>
+        </div>
+        <button onclick="closeTicketDetailModal()" class="w-8 h-8 rounded-lg bg-surface-subtle border border-surface-border text-slate-400 hover:text-white flex items-center justify-center text-base transition cursor-pointer">
+          &times;
+        </button>
+      </div>
+      <!-- Modal Body -->
+      <div class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs custom-scrollbar" id="modalTicketContent">
+        <!-- Populated by openTicketDetailModal -->
+      </div>
+      <!-- Modal Footer -->
+      <div class="p-3.5 border-t border-surface-border bg-[#090D16] flex justify-end gap-2">
+        <button onclick="closeTicketDetailModal()" id="btnModalClose" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer touch-target flex items-center justify-center">
+          ปิดหน้าต่าง
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ANDROID APK DOWNLOAD MODAL (Root Stacking Context) ================= -->
+  <div id="apkDownloadModal" class="hidden fixed inset-0 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md transition-all duration-300" style="position: fixed !important; z-index: 99998 !important;">
+    <div class="relative w-full max-w-md bg-surface-card border border-surface-border rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div class="p-4 border-b border-surface-border flex items-center justify-between bg-[#090D16]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-white text-sm" id="txtApkModalTitle">ดาวน์โหลด Android APK (v1.0.0)</h3>
+            <p class="text-[11px] text-slate-400">Production Release Build • CI/CD Verified</p>
+          </div>
+        </div>
+        <button onclick="closeApkDownloadModal()" class="w-8 h-8 rounded-lg bg-surface-subtle border border-surface-border text-slate-400 hover:text-white flex items-center justify-center text-base transition cursor-pointer">&times;</button>
+      </div>
+      <div class="p-4 sm:p-5 space-y-3 text-xs">
+        <p class="text-slate-300 leading-relaxed" id="txtApkModalDesc">เลือกสถาปัตยกรรม CPU ของอุปกรณ์ Android เพื่อดาวน์โหลด:</p>
+        
+        <a href="https://github.com/ZillerDX/field-service-platform/releases/download/v1.0.0/app-arm64-v8a-release.apk" target="_blank" class="p-3.5 rounded-xl bg-[#090D16] hover:bg-slate-900 border border-emerald-500/40 hover:border-emerald-500 flex items-center justify-between transition group shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center font-bold font-mono text-xs">64</div>
+            <div>
+              <div class="font-semibold text-white group-hover:text-emerald-400 transition flex items-center gap-1.5">
+                ARM64 (arm64-v8a)
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-medium">แนะนำ</span>
+              </div>
+              <div class="text-[11px] text-slate-400">สมาร์ตโฟน Android รุ่นใหม่ส่วนใหญ่ (18.8 MB)</div>
+            </div>
+          </div>
+          <svg class="w-4 h-4 text-emerald-400 group-hover:translate-y-0.5 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        </a>
+
+        <a href="https://github.com/ZillerDX/field-service-platform/releases/download/v1.0.0/app-armeabi-v7a-release.apk" target="_blank" class="p-3.5 rounded-xl bg-[#090D16] hover:bg-slate-900 border border-surface-border hover:border-slate-600 flex items-center justify-between transition group">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center font-bold font-mono text-xs">32</div>
+            <div>
+              <div class="font-semibold text-white group-hover:text-blue-400 transition">ARM32 (armeabi-v7a)</div>
+              <div class="text-[11px] text-slate-400">อุปกรณ์ Android รุ่นเก่า / ทั่วไป (16.2 MB)</div>
+            </div>
+          </div>
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        </a>
+
+        <a href="https://github.com/ZillerDX/field-service-platform/releases/download/v1.0.0/app-x86_64-release.apk" target="_blank" class="p-3.5 rounded-xl bg-[#090D16] hover:bg-slate-900 border border-surface-border hover:border-slate-600 flex items-center justify-between transition group">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center font-bold font-mono text-xs">x64</div>
+            <div>
+              <div class="font-semibold text-white group-hover:text-purple-400 transition">x86_64 (Emulator)</div>
+              <div class="text-[11px] text-slate-400">Android Studio Emulator / ChromeOS (20.3 MB)</div>
+            </div>
+          </div>
+          <svg class="w-4 h-4 text-slate-400 group-hover:text-purple-400 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+        </a>
+      </div>
+      <div class="p-3.5 border-t border-surface-border bg-[#090D16] flex justify-between items-center text-[11px]">
+        <a href="https://github.com/ZillerDX/field-service-platform/releases/tag/v1.0.0" target="_blank" class="text-blue-400 hover:underline flex items-center gap-1 font-medium">
+          GitHub Releases <span>&nearr;</span>
+        </a>
+        <button onclick="closeApkDownloadModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer touch-target">
+          ปิดหน้าต่าง
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= FLOATING TOAST NOTIFICATION CONTAINER (Absolute Top Z-Index 999999) ================= -->
+  <div id="toastContainer" class="fixed top-20 sm:top-5 right-3 sm:right-6 left-3 sm:left-auto max-w-sm w-full pointer-events-none flex flex-col gap-2.5" style="position: fixed !important; z-index: 999999 !important;"></div>
 </body>
 </html>

@@ -37,6 +37,7 @@ export function createApp(): Application {
   });
 
   // Mount API v1 router
+  app.use('/api', apiRouter);
   app.use('/api/v1', apiRouter);
 
   // 404 handler
