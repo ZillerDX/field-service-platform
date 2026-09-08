@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: fsm-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    command: ["mongod", "--bind_ip_all"]
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fsm-backend
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - MONGO_URI=mongodb://mongodb:27017/field_service_platform
+      - JWT_SECRET=fsm_sprint1_jwt_secret_key_2026_super_secure
+      - GEOFENCE_RADIUS_METERS=200
+    depends_on:
+      - mongodb
+
+volumes:
+  mongo_data:

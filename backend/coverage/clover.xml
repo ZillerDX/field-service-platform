@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1788889586525" clover="3.2.0">
+  <project timestamp="1788889586525" name="All files">
+    <metrics statements="359" coveredstatements="276" conditionals="145" coveredconditionals="84" methods="26" coveredmethods="19" elements="530" coveredelements="379" complexity="0" loc="359" ncloc="359" packages="8" files="10" classes="10"/>
+    <package name="src">
+      <metrics statements="22" coveredstatements="18" conditionals="6" coveredconditionals="0" methods="4" coveredmethods="1"/>
+      <file name="app.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\app.ts">
+        <metrics statements="22" coveredstatements="18" conditionals="6" coveredconditionals="0" methods="4" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="11" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="18" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="48" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="54" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.config">
+      <metrics statements="3" coveredstatements="3" conditionals="16" coveredconditionals="16" methods="0" coveredmethods="0"/>
+      <file name="index.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\config\index.ts">
+        <metrics statements="3" coveredstatements="3" conditionals="16" coveredconditionals="16" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.controllers">
+      <metrics statements="246" coveredstatements="177" conditionals="110" coveredconditionals="60" methods="13" coveredmethods="11"/>
+      <file name="authController.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\controllers\authController.ts">
+        <metrics statements="42" coveredstatements="20" conditionals="14" coveredconditionals="5" methods="3" coveredmethods="1"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="5" type="stmt"/>
+        <line num="10" count="5" type="stmt"/>
+        <line num="12" count="5" type="cond" truecount="2" falsecount="1"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="20" count="5" type="stmt"/>
+        <line num="22" count="5" type="cond" truecount="2" falsecount="1"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="30" count="5" type="stmt"/>
+        <line num="31" count="5" type="cond" truecount="1" falsecount="0"/>
+        <line num="32" count="1" type="stmt"/>
+        <line num="36" count="1" type="stmt"/>
+        <line num="39" count="4" type="stmt"/>
+        <line num="41" count="4" type="stmt"/>
+        <line num="45" count="4" type="stmt"/>
+        <line num="49" count="4" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="70" count="1" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="88" count="1" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="90" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="91" count="0" type="stmt"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="102" count="0" type="cond" truecount="0" falsecount="3"/>
+        <line num="103" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="115" count="0" type="stmt"/>
+      </file>
+      <file name="ticketController.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\controllers\ticketController.ts">
+        <metrics statements="204" coveredstatements="157" conditionals="96" coveredconditionals="55" methods="10" coveredmethods="10"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="18" type="stmt"/>
+        <line num="10" count="18" type="stmt"/>
+        <line num="12" count="18" type="cond" truecount="6" falsecount="0"/>
+        <line num="13" count="1" type="stmt"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="20" count="17" type="stmt"/>
+        <line num="21" count="17" type="stmt"/>
+        <line num="23" count="17" type="cond" truecount="3" falsecount="0"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="32" count="16" type="stmt"/>
+        <line num="33" count="16" type="cond" truecount="1" falsecount="2"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="38" count="16" type="stmt"/>
+        <line num="39" count="16" type="stmt"/>
+        <line num="41" count="16" type="stmt"/>
+        <line num="56" count="16" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="69" count="3" type="stmt"/>
+        <line num="70" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="71" count="3" type="stmt"/>
+        <line num="74" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="75" count="1" type="stmt"/>
+        <line num="76" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="81" count="3" type="cond" truecount="0" falsecount="1"/>
+        <line num="82" count="0" type="stmt"/>
+        <line num="85" count="3" type="stmt"/>
+        <line num="86" count="3" type="stmt"/>
+        <line num="93" count="3" type="stmt"/>
+        <line num="95" count="3" type="stmt"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="112" count="1" type="stmt"/>
+        <line num="113" count="2" type="stmt"/>
+        <line num="114" count="2" type="stmt"/>
+        <line num="115" count="2" type="stmt"/>
+        <line num="119" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="120" count="1" type="stmt"/>
+        <line num="121" count="1" type="stmt"/>
+        <line num="125" count="1" type="cond" truecount="2" falsecount="1"/>
+        <line num="126" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="130" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="135" count="0" type="stmt"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="139" count="1" type="stmt"/>
+        <line num="141" count="0" type="stmt"/>
+        <line num="148" count="1" type="stmt"/>
+        <line num="149" count="14" type="stmt"/>
+        <line num="150" count="14" type="stmt"/>
+        <line num="151" count="14" type="stmt"/>
+        <line num="153" count="14" type="cond" truecount="1" falsecount="0"/>
+        <line num="154" count="1" type="stmt"/>
+        <line num="158" count="1" type="stmt"/>
+        <line num="161" count="13" type="stmt"/>
+        <line num="162" count="13" type="cond" truecount="0" falsecount="1"/>
+        <line num="163" count="0" type="stmt"/>
+        <line num="164" count="0" type="stmt"/>
+        <line num="167" count="13" type="cond" truecount="1" falsecount="2"/>
+        <line num="168" count="0" type="stmt"/>
+        <line num="172" count="0" type="stmt"/>
+        <line num="175" count="13" type="stmt"/>
+        <line num="176" count="13" type="cond" truecount="3" falsecount="1"/>
+        <line num="177" count="0" type="stmt"/>
+        <line num="181" count="0" type="stmt"/>
+        <line num="185" count="13" type="cond" truecount="1" falsecount="0"/>
+        <line num="186" count="1" type="stmt"/>
+        <line num="190" count="1" type="stmt"/>
+        <line num="193" count="12" type="stmt"/>
+        <line num="194" count="12" type="stmt"/>
+        <line num="195" count="12" type="stmt"/>
+        <line num="197" count="12" type="stmt"/>
+        <line num="202" count="0" type="stmt"/>
+        <line num="209" count="1" type="stmt"/>
+        <line num="210" count="23" type="stmt"/>
+        <line num="211" count="23" type="stmt"/>
+        <line num="212" count="23" type="stmt"/>
+        <line num="218" count="23" type="cond" truecount="1" falsecount="0"/>
+        <line num="219" count="1" type="stmt"/>
+        <line num="220" count="1" type="stmt"/>
+        <line num="223" count="22" type="stmt"/>
+        <line num="224" count="22" type="cond" truecount="0" falsecount="1"/>
+        <line num="225" count="0" type="stmt"/>
+        <line num="226" count="0" type="stmt"/>
+        <line num="230" count="22" type="cond" truecount="1" falsecount="0"/>
+        <line num="231" count="20" type="cond" truecount="0" falsecount="1"/>
+        <line num="235" count="0" type="stmt"/>
+        <line num="236" count="0" type="stmt"/>
+        <line num="240" count="22" type="stmt"/>
+        <line num="243" count="22" type="cond" truecount="1" falsecount="0"/>
+        <line num="244" count="10" type="cond" truecount="0" falsecount="1"/>
+        <line num="245" count="0" type="stmt"/>
+        <line num="249" count="0" type="stmt"/>
+        <line num="251" count="10" type="stmt"/>
+        <line num="252" count="10" type="stmt"/>
+        <line num="253" count="10" type="stmt"/>
+        <line num="257" count="10" type="stmt"/>
+        <line num="260" count="12" type="cond" truecount="1" falsecount="0"/>
+        <line num="261" count="10" type="cond" truecount="1" falsecount="0"/>
+        <line num="262" count="1" type="stmt"/>
+        <line num="266" count="1" type="stmt"/>
+        <line num="270" count="9" type="cond" truecount="2" falsecount="1"/>
+        <line num="271" count="0" type="stmt"/>
+        <line num="275" count="0" type="stmt"/>
+        <line num="278" count="9" type="stmt"/>
+        <line num="279" count="9" type="stmt"/>
+        <line num="281" count="9" type="stmt"/>
+        <line num="287" count="9" type="cond" truecount="1" falsecount="0"/>
+        <line num="288" count="1" type="stmt"/>
+        <line num="294" count="1" type="stmt"/>
+        <line num="297" count="8" type="stmt"/>
+        <line num="298" count="8" type="stmt"/>
+        <line num="300" count="8" type="stmt"/>
+        <line num="305" count="8" type="stmt"/>
+        <line num="308" count="2" type="cond" truecount="1" falsecount="0"/>
+        <line num="309" count="2" type="cond" truecount="3" falsecount="0"/>
+        <line num="310" count="1" type="stmt"/>
+        <line num="314" count="1" type="stmt"/>
+        <line num="316" count="1" type="stmt"/>
+        <line num="317" count="1" type="stmt"/>
+        <line num="318" count="1" type="stmt"/>
+        <line num="319" count="1" type="stmt"/>
+        <line num="322" count="0" type="cond" truecount="0" falsecount="1"/>
+        <line num="323" count="0" type="stmt"/>
+        <line num="327" count="0" type="stmt"/>
+        <line num="330" count="0" type="stmt"/>
+        <line num="335" count="0" type="stmt"/>
+        <line num="342" count="1" type="stmt"/>
+        <line num="343" count="2" type="stmt"/>
+        <line num="344" count="2" type="stmt"/>
+        <line num="345" count="2" type="stmt"/>
+        <line num="347" count="2" type="cond" truecount="3" falsecount="1"/>
+        <line num="348" count="0" type="stmt"/>
+        <line num="352" count="0" type="stmt"/>
+        <line num="355" count="2" type="stmt"/>
+        <line num="356" count="2" type="stmt"/>
+        <line num="358" count="2" type="cond" truecount="3" falsecount="0"/>
+        <line num="359" count="1" type="stmt"/>
+        <line num="363" count="1" type="stmt"/>
+        <line num="366" count="1" type="stmt"/>
+        <line num="367" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="368" count="0" type="stmt"/>
+        <line num="369" count="0" type="stmt"/>
+        <line num="372" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="373" count="0" type="stmt"/>
+        <line num="377" count="0" type="stmt"/>
+        <line num="380" count="1" type="stmt"/>
+        <line num="386" count="1" type="stmt"/>
+        <line num="388" count="1" type="stmt"/>
+        <line num="393" count="0" type="stmt"/>
+        <line num="400" count="1" type="stmt"/>
+        <line num="401" count="6" type="stmt"/>
+        <line num="402" count="6" type="stmt"/>
+        <line num="403" count="6" type="stmt"/>
+        <line num="405" count="6" type="cond" truecount="2" falsecount="1"/>
+        <line num="406" count="0" type="stmt"/>
+        <line num="410" count="0" type="stmt"/>
+        <line num="413" count="6" type="stmt"/>
+        <line num="414" count="6" type="cond" truecount="0" falsecount="1"/>
+        <line num="415" count="0" type="stmt"/>
+        <line num="416" count="0" type="stmt"/>
+        <line num="420" count="6" type="cond" truecount="1" falsecount="1"/>
+        <line num="421" count="6" type="cond" truecount="0" falsecount="1"/>
+        <line num="422" count="0" type="stmt"/>
+        <line num="426" count="0" type="stmt"/>
+        <line num="429" count="6" type="stmt"/>
+        <line num="436" count="6" type="stmt"/>
+        <line num="438" count="6" type="stmt"/>
+        <line num="443" count="0" type="stmt"/>
+        <line num="450" count="1" type="stmt"/>
+        <line num="451" count="5" type="stmt"/>
+        <line num="452" count="5" type="stmt"/>
+        <line num="453" count="5" type="stmt"/>
+        <line num="455" count="5" type="stmt"/>
+        <line num="456" count="5" type="cond" truecount="0" falsecount="1"/>
+        <line num="457" count="0" type="stmt"/>
+        <line num="458" count="0" type="stmt"/>
+        <line num="461" count="5" type="cond" truecount="1" falsecount="0"/>
+        <line num="462" count="1" type="stmt"/>
+        <line num="466" count="1" type="stmt"/>
+        <line num="470" count="6" type="stmt"/>
+        <line num="471" count="6" type="stmt"/>
+        <line num="473" count="4" type="cond" truecount="3" falsecount="0"/>
+        <line num="474" count="2" type="stmt"/>
+        <line num="480" count="2" type="stmt"/>
+        <line num="483" count="2" type="stmt"/>
+        <line num="484" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="485" count="0" type="stmt"/>
+        <line num="486" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="487" count="1" type="stmt"/>
+        <line num="489" count="1" type="stmt"/>
+        <line num="493" count="1" type="stmt"/>
+        <line num="496" count="1" type="stmt"/>
+        <line num="497" count="1" type="stmt"/>
+        <line num="498" count="1" type="stmt"/>
+        <line num="499" count="1" type="stmt"/>
+        <line num="501" count="1" type="stmt"/>
+        <line num="506" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.middleware">
+      <metrics statements="27" coveredstatements="22" conditionals="10" coveredconditionals="8" methods="3" coveredmethods="3"/>
+      <file name="auth.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\middleware\auth.ts">
+        <metrics statements="27" coveredstatements="22" conditionals="10" coveredconditionals="8" methods="3" coveredmethods="3"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="15" count="76" type="stmt"/>
+        <line num="16" count="76" type="cond" truecount="4" falsecount="0"/>
+        <line num="18" count="76" type="cond" truecount="1" falsecount="0"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="26" count="75" type="stmt"/>
+        <line num="27" count="75" type="stmt"/>
+        <line num="28" count="75" type="stmt"/>
+        <line num="30" count="75" type="cond" truecount="2" falsecount="1"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="38" count="75" type="stmt"/>
+        <line num="39" count="75" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="48" count="1" type="stmt"/>
+        <line num="49" count="6" type="stmt"/>
+        <line num="50" count="70" type="cond" truecount="0" falsecount="1"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="58" count="70" type="cond" truecount="1" falsecount="0"/>
+        <line num="59" count="2" type="stmt"/>
+        <line num="63" count="2" type="stmt"/>
+        <line num="66" count="68" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.models">
+      <metrics statements="9" coveredstatements="9" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="Ticket.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\models\Ticket.ts">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="87" count="1" type="stmt"/>
+        <line num="89" count="1" type="stmt"/>
+      </file>
+      <file name="User.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\models\User.ts">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="71" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.routes">
+      <metrics statements="28" coveredstatements="24" conditionals="1" coveredconditionals="0" methods="2" coveredmethods="0"/>
+      <file name="api.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\routes\api.ts">
+        <metrics statements="28" coveredstatements="24" conditionals="1" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="19" count="1" type="stmt"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="23" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="27" count="1" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="45" count="1" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="47" count="1" type="stmt"/>
+        <line num="54" count="1" type="stmt"/>
+        <line num="57" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="82" count="1" type="stmt"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="99" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.services">
+      <metrics statements="10" coveredstatements="9" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="1"/>
+      <file name="seedService.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\services\seedService.ts">
+        <metrics statements="10" coveredstatements="9" conditionals="1" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="1" count="1" type="stmt"/>
+        <line num="2" count="1" type="stmt"/>
+        <line num="4" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="1" type="cond" truecount="0" falsecount="1"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="12" count="1" type="stmt"/>
+        <line num="65" count="1" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="src.utils">
+      <metrics statements="14" coveredstatements="14" conditionals="1" coveredconditionals="0" methods="3" coveredmethods="3"/>
+      <file name="geo.ts" path="C:\Users\bostz\.gemini\antigravity\scratch\field-service-platform\backend\src\utils\geo.ts">
+        <metrics statements="14" coveredstatements="14" conditionals="1" coveredconditionals="0" methods="3" coveredmethods="3"/>
+        <line num="6" count="1" type="stmt"/>
+        <line num="10" count="9" type="stmt"/>
+        <line num="11" count="9" type="stmt"/>
+        <line num="13" count="9" type="stmt"/>
+        <line num="14" count="9" type="stmt"/>
+        <line num="15" count="9" type="stmt"/>
+        <line num="18" count="9" type="stmt"/>
+        <line num="24" count="9" type="stmt"/>
+        <line num="25" count="9" type="stmt"/>
+        <line num="26" count="9" type="stmt"/>
+        <line num="30" count="36" type="stmt"/>
+        <line num="33" count="1" type="stmt"/>
+        <line num="38" count="9" type="stmt"/>
+        <line num="39" count="9" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

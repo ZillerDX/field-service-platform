@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FieldOps Nexus — Field Service & Maintenance Platform</title>
+  
+  <!-- PWA Manifest & Meta -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#090D16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FieldOps">
+  <link rel="apple-touch-icon" href="./icons/icon-192.png">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Leaflet CSS & JS for Interactive Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Typography: Inter, JetBrains Mono & LINE Seed Sans TH -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"LINE Seed Sans TH"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          colors: {
+            ground: '#090D16',
+            surface: {
+              DEFAULT: '#0F172A',
+              card: '#111C30',
+              subtle: '#18243C',
+              border: '#1E293B',
+              borderLight: '#2D3D58'
+            },
+            brand: {
+              50: '#EFF6FF',
+              400: '#60A5FA',
+              500: '#3B82F6',
+              600: '#2563EB',
+              700: '#1D4ED8'
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --lh-thai: 1.65;
+    }
+    body {
+      line-height: var(--lh-thai);
+      background-color: #090D16;
+      color: #E2E8F0;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #090D16;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1E293B;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #334155;
+    }
+    #map, #techMap {
+      height: 220px;
+      width: 100%;
+      border-radius: 0.75rem;
+      z-index: 1;
+    }
+    /* Subtle radial top glow */
+    .ambient-flare {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 1100px;
+      height: 280px;
+      background: radial-gradient(50% 50% at 50% 0%, rgba(59, 130, 246, 0.12) 0%, rgba(9, 13, 22, 0) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Spring micro-interactions */
+    .spring-hover {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .spring-hover:hover {
+      transform: translateY(-1px);
+    }
+    .spring-hover:active {
+      transform: translateY(0.5px) scale(0.99);
+    }
+    /* Minimum touch target accessibility standard >= 48px */
+    .touch-target {
+      min-height: 48px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans selection:bg-blue-600 selection:text-white relative">
+  <div class="ambient-flare"></div>
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <header class="sticky top-0 z-50 bg-[#090D16]/95 backdrop-blur-md border-b border-surface-border px-3 sm:px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Bespoke Vector Brand Monogram & Product Identity -->
+      <div class="flex items-center gap-3 z-10">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-900 flex items-center justify-center p-2.5 shadow-lg shadow-blue-500/15 ring-1 ring-white/20 shrink-0">
+          <svg viewBox="0 0 32 32" fill="none" class="w-full h-full">
+            <path d="M16 3L5 9.5v13L16 29l11-6.5v-13L16 3z" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-300" />
+            <path d="M16 16.5L5 9.5M16 16.5l11-7M16 16.5V29" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-200 opacity-60" />
+            <circle cx="16" cy="16.5" r="2.8" fill="#60A5FA" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-bold text-sm sm:text-base tracking-tight text-white flex items-center gap-1.5 whitespace-nowrap">
+              <span>FieldOps</span>
+              <span class="text-blue-400 font-semibold">Nexus</span>
+            </h1>
+          </div>
+          <p id="appSubtitle" class="text-[11px] sm:text-xs text-slate-400 font-normal truncate max-w-[200px] sm:max-w-none">ระบบบริหารงานซ่อมและบริการภาคสนาม</p>
+        </div>
+      </div>
+
+      <!-- Live Connectivity, Language Switcher & Role Switcher -->
+      <div class="flex items-center flex-wrap gap-2 sm:gap-3 z-10">
+        <!-- Authentic Domain Status Indicator -->
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-card border border-surface-border text-xs text-slate-300 whitespace-nowrap">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span id="headerOperationalText" class="font-medium text-slate-200 text-[11px]">ระบบพร้อมปฏิบัติงาน</span>
+        </div>
+
+        <!-- Language Segmented Control (Clean Typography) -->
+        <div class="flex items-center bg-surface-card p-0.5 rounded-lg border border-surface-border text-xs">
+          <button type="button" id="btnLangTh" onclick="setLanguage('th')" class="px-2.5 py-1.5 rounded-md font-semibold transition-all bg-blue-600 text-white shadow-xs" title="สลับเป็นภาษาไทย">
+            TH
+          </button>
+          <button type="button" id="btnLangEn" onclick="setLanguage('en')" class="px-2.5 py-1.5 rounded-md font-semibold transition-all text-slate-400 hover:text-white" title="Switch to English">
+            EN
+          </button>
+        </div>
+
+        <!-- Role Switcher Segmented Control with Clean Inline SVGs -->
+        <div class="flex items-center bg-surface-card p-1 rounded-lg border border-surface-border text-xs flex-wrap">
+          <button id="btnRoleCust" onclick="switchRole('Customer')" class="px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition-all bg-blue-600 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            <span id="txtRoleCust">ลูกค้า</span>
+          </button>
+          <button id="btnRoleTech" onclick="switchRole('Technician')" class="px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition-all text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg>
+            <span id="txtRoleTech">ช่างเทคนิค</span>
+          </button>
+          <button id="btnRoleAdmin" onclick="switchRole('Admin')" class="px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition-all text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer">
+            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+            <span id="txtRoleAdmin">ศูนย์ควบคุม</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ================= MAIN WORKSPACE ================= -->
+  <main class="max-w-7xl mx-auto w-full px-3 sm:px-4 pt-4 sm:pt-5 pb-16 flex-1 z-10">
+
+    <!-- Active User & Operations Banner -->
+    <div class="mb-5 p-3.5 sm:p-4 rounded-xl bg-surface-card border border-surface-border flex flex-wrap items-center justify-between gap-3 shadow-xs">
+      <div class="flex items-center gap-3">
+        <div id="userAvatar" class="w-10 h-10 rounded-xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center font-bold text-sm tracking-wider shrink-0">
+          CU
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="userName" class="font-semibold text-white text-sm">คุณสมพงษ์ เจริญกิจ</span>
+            <span id="userRoleBadge" class="text-xs px-2.5 py-0.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium whitespace-nowrap">ผู้แจ้งซ่อม</span>
+          </div>
+          <div class="text-xs text-slate-400 font-mono mt-0.5" id="userEmail">customer@fsm.local • 081-111-2222</div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 text-xs flex-wrap">
+        <div class="flex items-center gap-2 text-slate-300 bg-[#090D16] px-3 py-1.5 rounded-lg border border-surface-border whitespace-nowrap">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+          <span id="txtWorkforceStatus" class="font-medium">พร้อมรับงานภาคสนาม</span>
+        </div>
+        <button onclick="refreshTickets()" class="px-3 py-1.5 rounded-lg bg-surface-subtle hover:bg-slate-800 border border-surface-border text-slate-200 hover:text-white flex items-center gap-2 transition spring-hover cursor-pointer shadow-xs whitespace-nowrap">
+          <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          <span id="txtBtnRefresh">รีเฟรช</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= VIEW 1: CUSTOMER VIEW ================= -->
+    <div id="viewCustomer" class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+      
+      <!-- Create Ticket Form (5 cols) -->
+      <div class="lg:col-span-5 bg-surface-card border border-surface-border rounded-xl p-4 sm:p-5 flex flex-col gap-4 shadow-xs">
+        <div class="flex items-center justify-between border-b border-surface-border pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+            </div>
+            <h2 id="txtCreateTicketHeader" class="font-bold text-white text-sm tracking-tight whitespace-nowrap">
+              สร้างใบแจ้งซ่อมใหม่
+            </h2>
+          </div>
+          <button type="button" onclick="handleCreateTicket(event)" id="btnHeaderSubmit" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow transition spring-hover flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            <span id="txtBtnCreateQuick">ส่งงานซ่อม</span>
+          </button>
+        </div>
+
+        <form id="createTicketForm" onsubmit="handleCreateTicket(event)" class="space-y-3.5">
+          <div>
+            <label id="txtTitleLabel" class="block text-xs font-medium text-slate-300 mb-1.5">หัวข้องานซ่อม *</label>
+            <input type="text" id="ticketTitle" required placeholder="เช่น เครื่องปรับอากาศ VRV ชั้น 4 ไม่เย็น" class="w-full bg-[#090D16] border border-surface-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition placeholder:text-slate-600" value="เครื่องปรับอากาศ VRV ชั้น 4 ไม่เย็น">
+          </div>
+
+          <div>
+            <label id="txtDescLabel" class="block text-xs font-medium text-slate-300 mb-1.5">รายละเอียดอาการ *</label>
+            <textarea id="ticketDesc" required rows="2" placeholder="ระบุรายละเอียดอาการที่ตรวจพบ" class="w-full bg-[#090D16] border border-surface-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition placeholder:text-slate-600">อุณหภูมิห้องเซิร์ฟเวอร์แตะ 29C พัดลมคอยล์ร้อนหมุนช้าผิดปกติ</textarea>
+          </div>
+
+          <div>
+            <label id="txtAddrLabel" class="block text-xs font-medium text-slate-300 mb-1.5">สถานที่แจ้งซ่อม *</label>
+            <input type="text" id="ticketAddress" required placeholder="ระบุอาคาร ชั้น แผนก หรือที่อยู่" class="w-full bg-[#090D16] border border-surface-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 transition placeholder:text-slate-600" value="อาคารสยามสแควร์วัน ชั้น 4 ปทุมวัน กรุงเทพฯ">
+          </div>
+
+          <!-- Geolocation Coordinates & Presets -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label id="txtGeoLabel" class="text-xs font-medium text-slate-300 flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                พิกัดสถานที่ซ่อม (GPS)
+              </label>
+              <span id="coordDisplay" class="font-mono text-[11px] text-blue-400 tabular-nums">[100.523186, 13.736717]</span>
+            </div>
+
+            <!-- Quick Location Presets -->
+            <div class="flex items-center gap-1.5 mb-2 flex-wrap">
+              <span id="txtPresetsLabel" class="text-[11px] text-slate-400">พิกัดตัวอย่าง:</span>
+              <button type="button" id="btnPresetSiam" onclick="setPresetLocation('อาคารสยามสแควร์วัน ชั้น 4 ปทุมวัน กรุงเทพฯ', 100.523186, 13.736717)" class="px-2 py-1 rounded bg-[#090D16] hover:bg-slate-800 text-slate-300 text-[11px] border border-surface-border transition cursor-pointer flex items-center gap-1 whitespace-nowrap">
+                <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" stroke-width="2"/><path stroke-width="2" d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
+                สยามสแควร์วัน
+              </button>
+              <button type="button" id="btnPresetSilom" onclick="setPresetLocation('อาคารสีลมคอมเพล็กซ์ ชั้น 12 บางรัก กรุงเทพฯ', 100.534241, 13.727895)" class="px-2 py-1 rounded bg-[#090D16] hover:bg-slate-800 text-slate-300 text-[11px] border border-surface-border transition cursor-pointer flex items-center gap-1 whitespace-nowrap">
+                <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" stroke-width="2"/><path stroke-width="2" d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
+                สีลมคอมเพล็กซ์
+              </button>
+              <button type="button" id="btnPresetCharn" onclick="setPresetLocation('อาคารชาญอิสสระ ทาวเวอร์ 1 บางรัก กรุงเทพฯ', 100.531200, 13.730100)" class="px-2 py-1 rounded bg-[#090D16] hover:bg-slate-800 text-slate-300 text-[11px] border border-surface-border transition cursor-pointer flex items-center gap-1 whitespace-nowrap">
+                <svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" stroke-width="2"/><path stroke-width="2" d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg>
+                ชาญอิสสระ
+              </button>
+            </div>
+
+            <!-- Leaflet Interactive Map Container -->
+            <div id="map" class="border border-surface-border overflow-hidden"></div>
+            <input type="hidden" id="ticketLng" value="100.523186">
+            <input type="hidden" id="ticketLat" value="13.736717">
+          </div>
+
+          <button type="submit" id="btnSubmitTicket" class="w-full py-3 px-4 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs transition spring-hover shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 cursor-pointer touch-target">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            <span id="txtBtnSubmitTicket">ยืนยันส่งใบแจ้งซ่อม</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Ticket History List (7 cols) -->
+      <div class="lg:col-span-7 bg-surface-card border border-surface-border rounded-xl p-4 sm:p-5 flex flex-col gap-4 shadow-xs">
+        <div class="flex items-center justify-between border-b border-surface-border pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+            </div>
+            <h2 id="txtMyTicketsHeader" class="font-bold text-white text-sm tracking-tight whitespace-nowrap">
+              ประวัติใบแจ้งซ่อม
+            </h2>
+          </div>
+          <span id="custTicketCount" class="font-mono text-xs text-slate-400 tabular-nums px-2.5 py-0.5 rounded-md bg-[#090D16] border border-surface-border whitespace-nowrap">
+            0 รายการ
+          </span>
+        </div>
+
+        <!-- Ticket Card Feed -->
+        <div id="customerTicketList" class="space-y-3 overflow-y-auto max-h-[640px] custom-scrollbar pr-1">
+          <!-- Dynamically populated -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= VIEW 2: TECHNICIAN VIEW ================= -->
+    <div id="viewTech" class="hidden space-y-5">
+      
+      <!-- Tech Workspace Header & Filter Bar -->
+      <div class="bg-surface-card border border-surface-border rounded-xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 id="txtTechWorkspaceTitle" class="font-bold text-sm sm:text-base text-white flex items-center gap-2 whitespace-nowrap">
+              <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg>
+              <span>กระดานงานช่างเทคนิค</span>
+            </h2>
+          </div>
+          <p id="txtTechSub" class="text-xs text-slate-400 mt-0.5">ช่างวิชัย ภาคสนาม • บริการระบบปรับอากาศและวิศวกรรมอาคาร</p>
+        </div>
+
+        <!-- Status Filter Tabs -->
+        <div class="flex items-center bg-[#090D16] p-1 rounded-lg border border-surface-border text-xs flex-wrap gap-1">
+          <button id="techTabAll" onclick="setTechFilter('all')" class="px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition bg-blue-600 text-white shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+            <span id="lblTechTabAll">ทั้งหมด</span>
+            <span id="techCountAll" class="text-[11px] font-mono px-1.5 py-0.2 rounded bg-white/20 tabular-nums">0</span>
+          </button>
+          <button id="techTabNew" onclick="setTechFilter('Assigned')" class="px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+            <span id="lblTechTabNew">งานใหม่</span>
+            <span id="techCountNew" class="text-[11px] font-mono px-1.5 py-0.2 rounded bg-slate-800 tabular-nums">0</span>
+          </button>
+          <button id="techTabActive" onclick="setTechFilter('active')" class="px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+            <span id="lblTechTabActive">กำลังทำ</span>
+            <span id="techCountActive" class="text-[11px] font-mono px-1.5 py-0.2 rounded bg-slate-800 tabular-nums">0</span>
+          </button>
+          <button id="techTabCompleted" onclick="setTechFilter('Completed')" class="px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap">
+            <span id="lblTechTabCompleted">ปิดงานแล้ว</span>
+            <span id="techCountCompleted" class="text-[11px] font-mono px-1.5 py-0.2 rounded bg-slate-800 tabular-nums">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Split Layout: Left Queue (5 cols) & Right Action Console (7 cols) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+        
+        <!-- Column 1: Tech Queue (5 cols) -->
+        <div class="lg:col-span-5 bg-surface-card border border-surface-border rounded-xl p-4 flex flex-col gap-3.5 shadow-xs">
+          <div class="flex items-center justify-between border-b border-surface-border pb-2.5">
+            <h3 class="font-semibold text-xs text-slate-200 uppercase tracking-wider flex items-center gap-2 whitespace-nowrap">
+              <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>
+              <span id="txtTechQueueHeader">คลังตั๋วงานของช่าง</span>
+            </h3>
+            <span id="techListFilterLabel" class="text-[11px] text-blue-400 font-medium font-mono whitespace-nowrap">ทั้งหมด</span>
+          </div>
+
+          <div id="techJobListContainer" class="space-y-2.5 overflow-y-auto max-h-[700px] custom-scrollbar pr-1">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Column 2: Tech Workspace (7 cols) -->
+        <div class="lg:col-span-7 bg-surface-card border border-surface-border rounded-xl p-4 sm:p-5 flex flex-col gap-4 shadow-xs">
+          <div id="techJobDetailContainer">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ================= VIEW 3: ADMIN / DISPATCHER VIEW ================= -->
+    <div id="viewAdmin" class="hidden space-y-5">
+      
+      <!-- Metrics & Overview Grid (4 Cards) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        <div class="p-3.5 sm:p-4 rounded-xl bg-surface-card border border-surface-border shadow-xs">
+          <div class="flex items-center justify-between text-slate-400 text-xs mb-1">
+            <span id="txtStatTotalLabel">งานทั้งหมด</span>
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+          </div>
+          <div id="statTotal" class="text-xl sm:text-2xl font-bold text-white font-mono tabular-nums">0</div>
+        </div>
+
+        <div class="p-3.5 sm:p-4 rounded-xl bg-surface-card border border-surface-border shadow-xs">
+          <div class="flex items-center justify-between text-amber-400 text-xs mb-1">
+            <span id="txtStatPendingLabel">รอจ่ายงาน</span>
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <div id="statPending" class="text-xl sm:text-2xl font-bold text-amber-400 font-mono tabular-nums">0</div>
+        </div>
+
+        <div class="p-3.5 sm:p-4 rounded-xl bg-surface-card border border-surface-border shadow-xs">
+          <div class="flex items-center justify-between text-blue-400 text-xs mb-1">
+            <span id="txtStatActiveLabel">กำลังปฏิบัติงาน</span>
+            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          </div>
+          <div id="statActive" class="text-xl sm:text-2xl font-bold text-blue-400 font-mono tabular-nums">0</div>
+        </div>
+
+        <div class="p-3.5 sm:p-4 rounded-xl bg-surface-card border border-surface-border shadow-xs">
+          <div class="flex items-center justify-between text-emerald-400 text-xs mb-1">
+            <span id="txtStatCompletedLabel">ปิดงานสำเร็จ</span>
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <div id="statCompleted" class="text-xl sm:text-2xl font-bold text-emerald-400 font-mono tabular-nums">0</div>
+        </div>
+      </div>
+
+      <!-- Dispatcher Console Section -->
+      <div class="bg-surface-card border border-surface-border rounded-xl p-4 sm:p-5 space-y-4 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-3 sm:gap-4 border-b border-surface-border pb-4">
+          <div>
+            <h3 id="txtAdminTableTitle" class="text-sm sm:text-base font-bold text-white flex items-center gap-2 whitespace-nowrap">
+              <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+              <span>ศูนย์ควบคุมและจ่ายงานซ่อมบำรุง</span>
+            </h3>
+            <p id="txtAdminTableDesc" class="text-xs text-slate-400 mt-0.5">ตรวจสอบสถานะช่างเทคนิคและมอบหมายงานภาคสนาม</p>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Filter Pills -->
+            <div class="flex items-center bg-[#090D16] p-1 rounded-lg border border-surface-border text-xs flex-wrap gap-1">
+              <button id="adminFilterAll" onclick="setAdminFilter('all')" class="px-2.5 py-1.5 rounded font-medium transition bg-blue-600 text-white shadow-xs cursor-pointer whitespace-nowrap">ทั้งหมด</button>
+              <button id="adminFilterPending" onclick="setAdminFilter('Pending')" class="px-2.5 py-1.5 rounded font-medium transition text-slate-400 hover:text-white cursor-pointer whitespace-nowrap">รอจ่ายงาน</button>
+              <button id="adminFilterActive" onclick="setAdminFilter('active')" class="px-2.5 py-1.5 rounded font-medium transition text-slate-400 hover:text-white cursor-pointer whitespace-nowrap">กำลังทำ</button>
+              <button id="adminFilterCompleted" onclick="setAdminFilter('Completed')" class="px-2.5 py-1.5 rounded font-medium transition text-slate-400 hover:text-white cursor-pointer whitespace-nowrap">ปิดงานแล้ว</button>
+            </div>
+
+            <button onclick="refreshTickets()" class="px-3 py-1.5 rounded-lg bg-surface-subtle hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-medium border border-surface-border flex items-center gap-1.5 transition spring-hover cursor-pointer whitespace-nowrap">
+              <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+              <span id="txtBtnAdminRefresh">อัปเดตข้อมูล</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 1. Desktop High-Density Table (Screen >= 1024px) -->
+        <div class="hidden lg:block overflow-x-auto rounded-lg border border-surface-border">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#090D16] text-slate-400 font-mono text-[11px] uppercase border-b border-surface-border">
+              <tr>
+                <th id="thColCode" class="p-3 whitespace-nowrap">รหัสตั๋ว</th>
+                <th id="thColTitle" class="p-3 whitespace-nowrap">หัวข้องาน</th>
+                <th id="thColCust" class="p-3 whitespace-nowrap">ลูกค้า / สถานที่</th>
+                <th id="thColCoords" class="p-3 whitespace-nowrap">พิกัด GPS</th>
+                <th id="thColStatus" class="p-3 whitespace-nowrap min-w-[130px]">สถานะ</th>
+                <th id="thColTech" class="p-3 whitespace-nowrap">ช่างผู้รับผิดชอบ</th>
+                <th id="thColAction" class="p-3 text-right whitespace-nowrap min-w-[200px]">ดำเนินการ</th>
+              </tr>
+            </thead>
+            <tbody id="adminTicketTableBody" class="divide-y divide-surface-border text-slate-300">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 2. Mobile Adaptive Card Feed (Screen < 1024px) - Prevents Horizontal Overflow & Breaking -->
+        <div id="adminTicketMobileCards" class="block lg:hidden space-y-3">
+          <!-- Dynamically populated -->
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- ================= TICKET DETAIL POP-UP MODAL (z-index: 9998) ================= -->
+    <div id="ticketDetailModal" class="hidden fixed inset-0 z-[9998] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md transition-all duration-300">
+      <div class="relative w-full max-w-2xl bg-surface-card border border-surface-border rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- Modal Header -->
+        <div class="p-4 border-b border-surface-border flex items-center justify-between bg-[#090D16]">
+          <div class="flex items-center gap-2.5">
+            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+            <h3 class="font-bold text-white text-sm" id="modalTicketCode">รายละเอียดตั๋วงาน</h3>
+            <span id="modalTicketStatusBadge"></span>
+          </div>
+          <button onclick="closeTicketDetailModal()" class="w-8 h-8 rounded-lg bg-surface-subtle border border-surface-border text-slate-400 hover:text-white flex items-center justify-center text-base transition cursor-pointer">
+            &times;
+          </button>
+        </div>
+        <!-- Modal Body -->
+        <div class="p-4 sm:p-5 overflow-y-auto space-y-4 text-xs custom-scrollbar" id="modalTicketContent">
+          <!-- Populated by openTicketDetailModal -->
+        </div>
+        <!-- Modal Footer -->
+        <div class="p-3.5 border-t border-surface-border bg-[#090D16] flex justify-end gap-2">
+          <button onclick="closeTicketDetailModal()" id="btnModalClose" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition cursor-pointer touch-target flex items-center justify-center">
+            ปิดหน้าต่าง
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= FLOATING TOAST NOTIFICATION CONTAINER (z-index: 9999) ================= -->
+    <div id="toastContainer" class="fixed top-4 right-4 sm:top-5 sm:right-5 z-[9999] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
+
+  </main>
+
+  <!-- ================= CLIENT LOGIC & LOCALIZATION ENGINE ================= -->
+  <script>
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('ServiceWorker registered with scope:', reg.scope))
+          .catch(err => console.warn('ServiceWorker registration error:', err));
+      });
+    }
+
+    // Comprehensive Bilingual Translations (TH & EN) — Zero Emojis, Zero Fake Badges
+    const translations = {
+      th: {
+        appSubtitle: "ระบบบริหารงานซ่อมและบริการภาคสนาม",
+        headerOperational: "ระบบพร้อมปฏิบัติงาน",
+        roleCustomer: "ลูกค้า",
+        roleTech: "ช่างเทคนิค",
+        roleAdmin: "ศูนย์ควบคุม",
+        workforceReady: "พร้อมรับงานภาคสนาม",
+        btnRefresh: "รีเฟรช",
+        roleBadgeCustomer: "ผู้แจ้งซ่อม",
+        roleBadgeTech: "ช่างเทคนิคอาวุโส",
+        roleBadgeAdmin: "ศูนย์ควบคุม",
+        createTicketHeader: "สร้างใบแจ้งซ่อมใหม่",
+        btnQuickCreate: "ส่งงานซ่อม",
+        titleLabel: "หัวข้องานซ่อม *",
+        titlePlaceholder: "เช่น เครื่องปรับอากาศ VRV ชั้น 4 ไม่เย็น",
+        descLabel: "รายละเอียดอาการ *",
+        descPlaceholder: "ระบุรายละเอียดอาการที่ตรวจพบ",
+        addrLabel: "สถานที่แจ้งซ่อม *",
+        addrPlaceholder: "ระบุอาคาร ชั้น แผนก หรือที่อยู่",
+        geoLabel: "พิกัดสถานที่ซ่อม (GPS)",
+        presetsLabel: "พิกัดตัวอย่าง:",
+        presetSiam: "สยามสแควร์วัน",
+        presetSilom: "สีลมคอมเพล็กซ์",
+        presetCharn: "ชาญอิสสระ",
+        submitTicket: "ยืนยันส่งใบแจ้งซ่อม",
+        submitting: "กำลังส่งข้อมูล...",
+        myTicketsHeader: "ประวัติใบแจ้งซ่อม",
+        ticketCountUnit: "รายการ",
+        noTickets: "ยังไม่มีรายการแจ้งซ่อม",
+        techWaiting: "รอจัดสรรช่าง",
+        techAssigned: "ช่างผู้ดูแล:",
+        statTotalLabel: "งานทั้งหมด",
+        statPendingLabel: "รอจ่ายงาน",
+        statActiveLabel: "กำลังปฏิบัติงาน",
+        statCompletedLabel: "ปิดงานสำเร็จ",
+        adminTableTitle: "ศูนย์ควบคุมและจ่ายงานซ่อมบำรุง",
+        adminTableDesc: "ตรวจสอบสถานะช่างเทคนิคและมอบหมายงานภาคสนาม",
+        adminFilterAll: "ทั้งหมด",
+        adminFilterPending: "รอจ่ายงาน",
+        adminFilterActive: "กำลังทำ",
+        adminFilterCompleted: "ปิดงานแล้ว",
+        btnAdminRefresh: "อัปเดตข้อมูล",
+        colCode: "รหัสตั๋ว",
+        colTitle: "หัวข้องาน",
+        colCustomer: "ลูกค้า / สถานที่",
+        colCoords: "พิกัด GPS",
+        colStatus: "สถานะ",
+        colTech: "ช่างผู้รับผิดชอบ",
+        colAction: "ดำเนินการ",
+        btnViewTicket: "ดูรายละเอียด",
+        btnAssignWichai: "จ่ายงานให้ช่างวิชัย",
+        statusLocked: "ล็อกตามขั้นตอน",
+        unassignedText: "ยังไม่ได้มอบหมาย",
+        noAdminTickets: "ไม่มีรายการตั๋วงานในหมวดหมู่นี้",
+        techWorkspaceTitle: "กระดานงานช่างเทคนิค",
+        techSub: "ช่างวิชัย ภาคสนาม • บริการระบบปรับอากาศและวิศวกรรมอาคาร",
+        techTabAll: "ทั้งหมด",
+        techTabNew: "งานใหม่",
+        techTabActive: "กำลังทำ",
+        techTabCompleted: "ปิดงานแล้ว",
+        techQueueHeader: "คลังตั๋วงานของช่าง",
+        techCategoryEmpty: "ไม่มีตั๋วงานในหมวดหมู่นี้",
+        techGoToAdmin: "ไปยังหน้าศูนย์ควบคุมเพื่อจ่ายงาน",
+        techSelectPrompt: "กรุณาคลิกเลือกตั๋วงานจากรายการด้านซ้ายเพื่อเปิดคอนโซลปฏิบัติงาน",
+        techCompletedBanner: "งานซ่อมเสร็จสมบูรณ์และตรวจรับแล้ว",
+        closedAt: "ปิดงานเมื่อ:",
+        customerLabel: "ลูกค้า:",
+        locationLabel: "สถานที่:",
+        targetCoordsLabel: "พิกัดหน้างาน:",
+        geofenceHeader: "เครื่องจำลองระยะ Geofence (200m)",
+        geofenceDesc: "จำลองระยะห่างระหว่างตำแหน่งปัจจุบันของช่างกับพิกัดหน้างาน (ตามเกณฑ์ต้องอยู่ ≤ 200m เพื่อยืนยัน Check-in):",
+        simDistanceLabel: "ระยะห่างจำลอง:",
+        inRadiusSuffix: "(ภายในรัศมี 200m)",
+        outRadiusSuffix: "(เกินระยะ Geofence > 200m)",
+        readyToCheckin: "อยู่ในรัศมีบริการ",
+        outOfZone: "อยู่นอกพื้นที่บริการ",
+        distPresetsLabel: "พรีเซ็ตระยะห่าง:",
+        preset25m: "25 ม. (หน้างาน)",
+        preset120m: "120 ม. (ในรัศมี)",
+        preset350m: "350 ม. (นอกรัศมี)",
+        btnEnRoute: "1. ออกเดินทาง",
+        btnCheckIn: "2. เช็คอินหน้างาน",
+        partsHeader: "รายการอะไหล่และค่าบริการ",
+        partsBadge: "บันทึกระหว่างปฏิบัติงาน",
+        quickPartsLabel: "เพิ่มรายการด่วน:",
+        partNamePlaceholder: "ชื่อรายการอะไหล่ หรือ ค่าแรง",
+        partQtyPlaceholder: "จำนวน",
+        partPricePlaceholder: "ราคาต่อหน่วย",
+        btnAddPart: "เพิ่มรายการ",
+        noParts: "ยังไม่มีรายการอะไหล่ที่บันทึก",
+        evidenceHeader: "ภาพถ่ายหลักฐานการซ่อม (ก่อนทำ ≥ 1, หลังทำ ≥ 1)",
+        beforeLabel: "1. ภาพก่อนทำ (Before)",
+        afterLabel: "2. ภาพหลังทำเสร็จ (After)",
+        btnSimulate: "จำลองภาพ",
+        btnAttachFile: "แนบไฟล์ภาพ",
+        photoDone: "บันทึกรูปภาพเรียบร้อย",
+        photoEmpty: "ยังไม่มีรูปภาพ",
+        signOffHeader: "ลายมือชื่อดิจิทัลตรวจรับงาน",
+        btnClearSign: "ล้างลายเซ็น",
+        signHint: "ลงชื่อลูกค้าด้วยเมาส์หรือระบบสัมผัส",
+        btnSubmitSignOff: "ส่งมอบงานและปิดใบแจ้งซ่อม",
+        inProgressNotice: "ขั้นตอนเพิ่มอะไหล่ ภาพถ่ายหลักฐาน และเซ็นปิดงาน จะเปิดให้ใช้งานเมื่อช่างทำการเช็คอินหน้างานเรียบร้อยแล้ว",
+        totalPartsPrice: "ยอดรวมทั้งสิ้น:",
+        modalTitle: "รายละเอียดตั๋วงาน",
+        modalClose: "ปิดหน้าต่าง",
+        modalReportedBy: "ผู้แจ้งซ่อม:",
+        modalTech: "ช่างเทคนิค:",
+        modalUnassigned: "ยังไม่ได้มอบหมาย",
+        modalPartsHeader: "รายการอะไหล่และอุปกรณ์",
+        modalNoParts: "ไม่มีรายการอะไหล่เพิ่มเติม",
+        modalTotalCost: "ยอดรวมค่าบริการ:",
+        modalEvidenceHeader: "หลักฐานภาพถ่ายการทำงาน",
+        modalBefore: "ก่อนทำ (Before)",
+        modalAfter: "หลังทำ (After)",
+        modalHasBefore: "มีภาพ Before ครบถ้วน",
+        modalHasAfter: "มีภาพ After ครบถ้วน",
+        modalNoPhoto: "ไม่มีภาพถ่าย",
+        modalSignHeader: "ลายเซ็นดิจิทัลตรวจรับงาน",
+        toastLangChanged: "สลับภาษาสำเร็จ",
+        toastLangDesc: "ระบบเปลี่ยนเป็นภาษาไทยเรียบร้อยแล้ว",
+        toastMissingTitle: "ข้อมูลไม่ครบถ้วน",
+        toastEnterTitle: "กรุณากรอกหัวข้องานซ่อม",
+        toastMissingDesc: "กรุณากรอกรายละเอียดอาการ",
+        toastMissingAddr: "กรุณากรอกสถานที่แจ้งซ่อม",
+        toastCreateSuccess: "สร้างใบแจ้งซ่อมสำเร็จ",
+        toastTicketCode: "รหัสตั๋วงาน",
+        toastCreateFail: "สร้างใบแจ้งซ่อมไม่สำเร็จ",
+        toastCheckInfo: "โปรดตรวจสอบข้อมูลที่ระบุ",
+        toastConnError: "ข้อผิดพลาดการเชื่อมต่อ",
+        toastAssignSuccess: "มอบหมายงานสำเร็จ",
+        toastAssignSuccessDesc: "ส่งตั๋วงานให้ช่างวิชัยเรียบร้อยแล้ว",
+        toastAssignFail: "มอบหมายงานไม่สำเร็จ",
+        toastStatusUpdateSuccess: "อัปเดตสถานะงานสำเร็จ",
+        toastGeofenceBreach: "อยู่นอกรัศมีที่กำหนด",
+        toastStatusUpdateFail: "ไม่สามารถอัปเดตสถานะได้",
+        toastPartAdded: "เพิ่มรายการอะไหล่สำเร็จ",
+        toastPartAddFail: "ไม่สามารถเพิ่มรายการอะไหล่ได้",
+        toastPartRemoved: "ลบรายการสำเร็จ",
+        toastPartRemovedDesc: "นำรายการอะไหล่ออกจากตั๋วงานเรียบร้อย",
+        toastPhotoAttached: "บันทึกภาพถ่ายสำเร็จ",
+        toastPhotoAttachFail: "ไม่สามารถบันทึกภาพถ่ายได้",
+        toastSignRequired: "จำเป็นต้องมีลายมือชื่อ",
+        toastSignRequiredDesc: "กรุณาให้ลูกค้าลงนามในช่องเซ็นชื่อก่อนปิดงาน",
+        toastCompleted: "ปิดงานซ่อมบำรุงสำเร็จ",
+        toastCompletedDesc: "บันทึกข้อมูลหลักฐานและลายเซ็นตรวจรับเรียบร้อยแล้ว"
+      },
+      en: {
+        appSubtitle: "Field Service & Maintenance Platform",
+        headerOperational: "System Operational",
+        roleCustomer: "Customer",
+        roleTech: "Technician",
+        roleAdmin: "Dispatcher",
+        workforceReady: "Field Active & Available",
+        btnRefresh: "Refresh",
+        roleBadgeCustomer: "Client",
+        roleBadgeTech: "Senior Field Tech",
+        roleBadgeAdmin: "Operations Dispatcher",
+        createTicketHeader: "Create Service Ticket",
+        btnQuickCreate: "Submit Ticket",
+        titleLabel: "Ticket Title *",
+        titlePlaceholder: "e.g. 4th Floor VRV Air Conditioning Unit Not Cooling",
+        descLabel: "Issue Description *",
+        descPlaceholder: "Describe the symptoms and malfunction observed",
+        addrLabel: "Service Location Address *",
+        addrPlaceholder: "Building, floor, department, or street address",
+        geoLabel: "Service Coordinates (GPS)",
+        presetsLabel: "Quick Presets:",
+        presetSiam: "Siam Square One",
+        presetSilom: "Silom Complex",
+        presetCharn: "Charn Issara",
+        submitTicket: "Submit Service Ticket",
+        submitting: "Submitting...",
+        myTicketsHeader: "Service History",
+        ticketCountUnit: "tickets",
+        noTickets: "No service tickets found",
+        techWaiting: "Pending Dispatch",
+        techAssigned: "Technician:",
+        statTotalLabel: "Total Tickets",
+        statPendingLabel: "Pending Dispatch",
+        statActiveLabel: "In Progress",
+        statCompletedLabel: "Completed",
+        adminTableTitle: "Dispatcher Control Matrix",
+        adminTableDesc: "Field workforce assignment & real-time ticket dispatching",
+        adminFilterAll: "All",
+        adminFilterPending: "Pending",
+        adminFilterActive: "Active",
+        adminFilterCompleted: "Completed",
+        btnAdminRefresh: "Update Data",
+        colCode: "Ticket Code",
+        colTitle: "Ticket Title",
+        colCustomer: "Client / Location",
+        colCoords: "GPS Coords",
+        colStatus: "Status",
+        colTech: "Assigned Tech",
+        colAction: "Action",
+        btnViewTicket: "Inspect",
+        btnAssignWichai: "Assign to Wichai",
+        statusLocked: "Workflow Locked",
+        unassignedText: "Unassigned",
+        noAdminTickets: "No service tickets in this category",
+        techWorkspaceTitle: "Field Technician Console",
+        techSub: "Wichai Field Specialist • HVAC & Electrical Infrastructure",
+        techTabAll: "All",
+        techTabNew: "New",
+        techTabActive: "In Progress",
+        techTabCompleted: "Completed",
+        techQueueHeader: "Assigned Job Queue",
+        techCategoryEmpty: "No tickets in this category",
+        techGoToAdmin: "Go to Dispatcher Console to assign work",
+        techSelectPrompt: "Select a ticket from the left queue to open the field workspace",
+        techCompletedBanner: "Job Completed & Customer Sign-off Verified",
+        closedAt: "Closed At:",
+        customerLabel: "Client:",
+        locationLabel: "Location:",
+        targetCoordsLabel: "Target Coordinates:",
+        geofenceHeader: "Geofence Radar Simulation (200m)",
+        geofenceDesc: "Simulates technician distance from service location (required ≤ 200m to Check-in):",
+        simDistanceLabel: "Simulated Distance:",
+        inRadiusSuffix: "(Within 200m Radius)",
+        outRadiusSuffix: "(Outside Geofence > 200m)",
+        readyToCheckin: "Within Service Area",
+        outOfZone: "Out of Service Area",
+        distPresetsLabel: "Distance Presets:",
+        preset25m: "25m (On-site)",
+        preset120m: "120m (In Range)",
+        preset350m: "350m (Out of Zone)",
+        btnEnRoute: "1. En Route",
+        btnCheckIn: "2. Check In",
+        partsHeader: "Parts & Service Items",
+        partsBadge: "Recorded In-Field",
+        quickPartsLabel: "Quick Add:",
+        partNamePlaceholder: "Part name or service labor",
+        partQtyPlaceholder: "Qty",
+        partPricePlaceholder: "Unit Price",
+        btnAddPart: "Add Item",
+        noParts: "No parts or service items recorded",
+        evidenceHeader: "Work Evidence Photos (Before ≥ 1, After ≥ 1)",
+        beforeLabel: "1. Before Photo",
+        afterLabel: "2. After Photo",
+        btnSimulate: "Simulate",
+        btnAttachFile: "Upload Photo",
+        photoDone: "Photo Verified & Stored",
+        photoEmpty: "No photo recorded",
+        signOffHeader: "Customer Digital Sign-off",
+        btnClearSign: "Clear Signature",
+        signHint: "Customer signature via mouse or touch input",
+        btnSubmitSignOff: "Complete Job & Sign-off",
+        inProgressNotice: "Parts logging, photo evidence, and customer sign-off become available once checked in on-site.",
+        totalPartsPrice: "Total Amount:",
+        modalTitle: "Ticket Details",
+        modalClose: "Close",
+        modalReportedBy: "Reported by:",
+        modalTech: "Technician:",
+        modalUnassigned: "Unassigned",
+        modalPartsHeader: "Parts & Service Items",
+        modalNoParts: "No additional parts recorded",
+        modalTotalCost: "Total Service Cost:",
+        modalEvidenceHeader: "Work Evidence",
+        modalBefore: "Before Photo",
+        modalAfter: "After Photo",
+        modalHasBefore: "Before photo verified",
+        modalHasAfter: "After photo verified",
+        modalNoPhoto: "No photo",
+        modalSignHeader: "Customer Digital Signature",
+        toastLangChanged: "Language Switched",
+        toastLangDesc: "System switched to English successfully",
+        toastMissingTitle: "Required Information Missing",
+        toastEnterTitle: "Please enter the ticket title",
+        toastMissingDesc: "Please describe the symptoms observed",
+        toastMissingAddr: "Please enter the service location",
+        toastCreateSuccess: "Ticket Created Successfully",
+        toastTicketCode: "Ticket Code",
+        toastCreateFail: "Failed to create ticket",
+        toastCheckInfo: "Please review the entered information",
+        toastConnError: "Connection Error",
+        toastAssignSuccess: "Technician Assigned",
+        toastAssignSuccessDesc: "Job assigned to Technician Wichai successfully",
+        toastAssignFail: "Failed to assign technician",
+        toastStatusUpdateSuccess: "Status Updated",
+        toastGeofenceBreach: "Geofence Boundary Exceeded",
+        toastStatusUpdateFail: "Unable to update status",
+        toastPartAdded: "Part Item Added",
+        toastPartAddFail: "Unable to add part item",
+        toastPartRemoved: "Item Removed",
+        toastPartRemovedDesc: "Part item removed from ticket",
+        toastPhotoAttached: "Photo Attached",
+        toastPhotoAttachFail: "Unable to record photo",
+        toastSignRequired: "Customer Signature Required",
+        toastSignRequiredDesc: "Customer must sign in the signature pad before completing the ticket",
+        toastCompleted: "Ticket Completed Successfully",
+        toastCompletedDesc: "Work completed with photo evidence and digital customer sign-off"
+      }
+    };
+
+    // Dictionary for Content Translation (Seeded Tickets, User Names, Addresses)
+    const contentDictionary = {
+      "เครื่องปรับอากาศ VRV ชั้น 4 ไม่เย็น": {
+        en: "4th Floor VRV Air Conditioning Unit Not Cooling",
+        th: "เครื่องปรับอากาศ VRV ชั้น 4 ไม่เย็น"
+      },
+      "อุณหภูมิห้องเซิร์ฟเวอร์แตะ 29C พัดลมคอยล์ร้อนหมุนช้าผิดปกติ": {
+        en: "Server room temperature reached 29°C; condensing unit fan rotating abnormally slow",
+        th: "อุณหภูมิห้องเซิร์ฟเวอร์แตะ 29°C พัดลมคอยล์ร้อนหมุนช้าผิดปกติ"
+      },
+      "ระบบปรับอากาศ Chiller ไม่ทำงาน": {
+        en: "Central Chiller HVAC System Inoperative",
+        th: "ระบบปรับอากาศ Chiller ไม่ทำงาน"
+      },
+      "ระบบทำความเย็นส่วนกลางหยุดทำงาน อุณหภูมิห้องเซิร์ฟเวอร์เพิ่มสูงขึ้น": {
+        en: "Central refrigeration system stopped working; server room temperature rising rapidly",
+        th: "ระบบทำความเย็นส่วนกลางหยุดทำงาน อุณหภูมิห้องเซิร์ฟเวอร์เพิ่มสูงขึ้น"
+      },
+      "ลิฟต์โดยสารตัวที่ 2 ค้างที่ชั้น 7": {
+        en: "Passenger Elevator #2 Stalled on 7th Floor",
+        th: "ลิฟต์โดยสารตัวที่ 2 ค้างที่ชั้น 7"
+      },
+      "ประตูลิฟต์เปิดไม่ออก มีสัญญาณเตือน Overload": {
+        en: "Elevator doors jammed; overload alarm trigger detected",
+        th: "ประตูลิฟต์เปิดไม่ออก มีสัญญาณเตือน Overload"
+      },
+      "ไฟทางเดินชั้น 3 ดับทั้งแถบ": {
+        en: "3rd Floor Corridor Lighting Outage Across Entire Wing",
+        th: "ไฟทางเดินชั้น 3 ดับทั้งแถบ"
+      },
+      "เบรกเกอร์สวิตช์บอร์ดทริปหลังจากฝนตกหนัก": {
+        en: "Sub-distribution board circuit breaker tripped following severe rainfall",
+        th: "เบรกเกอร์สวิตช์บอร์ดทริปหลังจากฝนตกหนัก"
+      },
+      "ปั๊มน้ำดีอาคาร B มีเสียงดังผิดปกติ": {
+        en: "Building B Booster Water Pump Emitting Abnormal Noise",
+        th: "ปั๊มน้ำดีอาคาร B มีเสียงดังผิดปกติ"
+      },
+      "ตรวจพบการสั่นสะเทือนสูง แรงดันน้ำตกระหว่างชั่วโมงเร่งด่วน": {
+        en: "High vibration detected; water pressure drops during peak hours",
+        th: "ตรวจพบการสั่นสะเทือนสูง แรงดันน้ำตกระหว่างชั่วโมงเร่งด่วน"
+      },
+      "อาคารสยามสแควร์วัน ชั้น 4 ปทุมวัน กรุงเทพฯ": {
+        en: "Siam Square One, 4th Fl, Pathum Wan, Bangkok",
+        th: "อาคารสยามสแควร์วัน ชั้น 4 ปทุมวัน กรุงเทพฯ"
+      },
+      "อาคารสีลมคอมเพล็กซ์ ชั้น 12 บางรัก กรุงเทพฯ": {
+        en: "Silom Complex, 12th Fl, Bang Rak, Bangkok",
+        th: "อาคารสีลมคอมเพล็กซ์ ชั้น 12 บางรัก กรุงเทพฯ"
+      },
+      "อาคารชาญอิสสระ ทาวเวอร์ 1 บางรัก กรุงเทพฯ": {
+        en: "Charn Issara Tower 1, Bang Rak, Bangkok",
+        th: "อาคารชาญอิสสระ ทาวเวอร์ 1 บางรัก กรุงเทพฯ"
+      },
+      "น้ำยาแอร์ R-410A (กก.)": {
+        en: "Refrigerant R-410A (kg)",
+        th: "น้ำยาแอร์ R-410A (กก.)"
+      },
+      "น้ำยาแอร์ R32 (กก.)": {
+        en: "Refrigerant R32 (kg)",
+        th: "น้ำยาแอร์ R32 (กก.)"
+      },
+      "คาปาซิเตอร์พัดลมแอร์": {
+        en: "Fan Motor Capacitor",
+        th: "คาปาซิเตอร์พัดลมแอร์"
+      },
+      "ล้างแอร์คอยล์เย็นชุดใหญ่": {
+        en: "Complete Evaporator Coil Chemical Clean",
+        th: "ล้างแอร์คอยล์เย็นชุดใหญ่"
+      }
+    };
+
+    function translateTicketContent(text, lang) {
+      if (!text) return text;
+      const clean = text.trim();
+      if (contentDictionary[clean] && contentDictionary[clean][lang]) {
+        return contentDictionary[clean][lang];
+      }
+      return clean;
+    }
+
+    function getLocalizedUserName(user, lang) {
+      if (!user) return '-';
+      const role = user.role;
+      if (role === 'Customer') {
+        return lang === 'th' ? 'คุณสมพงษ์ เจริญกิจ' : 'Sompong Charoenkit';
+      } else if (role === 'Technician') {
+        return lang === 'th' ? 'ช่างวิชัย ภาคสนาม' : 'Wichai Field Specialist';
+      } else if (role === 'Admin') {
+        return lang === 'th' ? 'นันทนา ศูนย์ควบคุม' : 'Nanthana Operations Dispatcher';
+      }
+      return user.fullName.replace(/\s*\([^)]*\)/g, '').trim();
+    }
+
+    // Status Badges & Translations with Fixed Width & Whitespace-Nowrap
+    const statusConfig = {
+      Pending: {
+        th: 'รอจ่ายงาน',
+        en: 'Pending Dispatch',
+        classes: 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+      },
+      Assigned: {
+        th: 'มอบหมายช่างแล้ว',
+        en: 'Assigned',
+        classes: 'bg-blue-500/10 text-blue-400 border-blue-500/30'
+      },
+      EnRoute: {
+        th: 'กำลังเดินทาง',
+        en: 'En Route',
+        classes: 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+      },
+      InProgress: {
+        th: 'กำลังปฏิบัติงาน',
+        en: 'In Progress',
+        classes: 'bg-sky-500/10 text-sky-400 border-sky-500/30'
+      },
+      Completed: {
+        th: 'ปิดงานสำเร็จ',
+        en: 'Completed',
+        classes: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+      },
+      Cancelled: {
+        th: 'ยกเลิก',
+        en: 'Cancelled',
+        classes: 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+      }
+    };
+
+    function getStatusBadge(status) {
+      const lang = state.currentLang || 'th';
+      const cfg = statusConfig[status] || {
+        th: status,
+        en: status,
+        classes: 'bg-slate-800 text-slate-400 border-slate-700'
+      };
+      const label = cfg[lang] || cfg.th;
+      return `<span class="inline-flex items-center justify-center whitespace-nowrap min-w-[110px] px-2.5 py-1 text-center rounded-md text-[11px] font-mono border ${cfg.classes} shadow-xs select-none">${label}</span>`;
+    }
+
+    // Application Global State
+    const state = {
+      currentRole: 'Customer',
+      currentLang: localStorage.getItem('fsm_lang') || 'th',
+      tokens: { Customer: null, Technician: null, Admin: null },
+      users: { Customer: null, Technician: null, Admin: null },
+      activeTickets: [],
+      selectedTechTicket: null,
+      selectedTechId: null,
+      techFilter: 'all',
+      adminFilter: 'all',
+      map: null,
+      marker: null
+    };
+
+    const API_BASE = '/api/v1';
+
+    // Toast Pop-up Notification Engine (z-index: 9999, Lucide SVGs, Spring Animation)
+    function showToast(title, message, type = 'info', duration = 4500) {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = 'pointer-events-auto p-3.5 rounded-xl border shadow-2xl flex items-start gap-3 transition-all duration-300 transform translate-x-6 opacity-0 backdrop-blur-md';
+
+      const typeMap = {
+        success: {
+          bg: 'bg-[#0B1512]/95 border-emerald-500/40 text-emerald-300',
+          icon: '<svg class="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+          titleColor: 'text-emerald-400'
+        },
+        error: {
+          bg: 'bg-[#180C0E]/95 border-rose-500/40 text-rose-300',
+          icon: '<svg class="w-4 h-4 text-rose-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+          titleColor: 'text-rose-400'
+        },
+        warning: {
+          bg: 'bg-[#181308]/95 border-amber-500/40 text-amber-300',
+          icon: '<svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>',
+          titleColor: 'text-amber-400'
+        },
+        info: {
+          bg: 'bg-[#0B1220]/95 border-blue-500/40 text-blue-300',
+          icon: '<svg class="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>',
+          titleColor: 'text-blue-400'
+        }
+      };
+
+      const cfg = typeMap[type] || typeMap.info;
+      toast.classList.add(...cfg.bg.split(' '));
+
+      toast.innerHTML = `
+        ${cfg.icon}
+        <div class="flex-1 min-w-0">
+          <div class="font-semibold text-xs ${cfg.titleColor} tracking-tight">${title}</div>
+          <div class="text-xs text-slate-300 mt-0.5 leading-relaxed break-words">${message}</div>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white transition text-xs p-1 -mr-1 -mt-1 cursor-pointer">&times;</button>
+      `;
+
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-x-6', 'opacity-0');
+        toast.classList.add('translate-x-0', 'opacity-100');
+      });
+
+      setTimeout(() => {
+        toast.classList.remove('translate-x-0', 'opacity-100');
+        toast.classList.add('translate-x-6', 'opacity-0');
+        setTimeout(() => { toast.remove(); }, 300);
+      }, duration);
+    }
+
+    // Role Credentials
+    const roleCredentials = {
+      Customer: { email: 'customer@fsm.local', pass: 'Customer123!' },
+      Technician: { email: 'tech1@fsm.local', pass: 'Tech123!' },
+      Admin: { email: 'admin@fsm.local', pass: 'Admin123!' }
+    };
+
+    async function loginRole(role) {
+      const cred = roleCredentials[role];
+      if (!cred) return null;
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: cred.email, password: cred.pass })
+        });
+        const data = await res.json();
+        if (res.ok && data.accessToken) {
+          state.tokens[role] = data.accessToken;
+          state.users[role] = data.user;
+          return data.accessToken;
+        }
+      } catch (err) {
+        console.error(`Login error for ${role}:`, err);
+      }
+      return null;
+    }
+
+    // Bulletproof API Fetch with Auto-Reauthentication
+    async function apiFetch(url, options = {}, role = state.currentRole) {
+      if (!options.headers) options.headers = {};
+      if (!state.tokens[role]) {
+        await loginRole(role);
+      }
+      if (state.tokens[role]) {
+        options.headers['Authorization'] = `Bearer ${state.tokens[role]}`;
+      }
+      let res = await fetch(url, options);
+      if (res.status === 401) {
+        const newToken = await loginRole(role);
+        if (newToken) {
+          options.headers['Authorization'] = `Bearer ${newToken}`;
+          res = await fetch(url, options);
+        }
+      }
+      return res;
+    }
+
+    // Language Switcher Function
+    function setLanguage(lang, silent = false) {
+      state.currentLang = lang;
+      localStorage.setItem('fsm_lang', lang);
+      document.documentElement.lang = lang;
+
+      const btnTh = document.getElementById('btnLangTh');
+      const btnEn = document.getElementById('btnLangEn');
+      if (btnTh && btnEn) {
+        if (lang === 'th') {
+          btnTh.className = 'px-2.5 py-1.5 rounded-md font-semibold transition-all bg-blue-600 text-white shadow-xs';
+          btnEn.className = 'px-2.5 py-1.5 rounded-md font-semibold transition-all text-slate-400 hover:text-white';
+        } else {
+          btnEn.className = 'px-2.5 py-1.5 rounded-md font-semibold transition-all bg-blue-600 text-white shadow-xs';
+          btnTh.className = 'px-2.5 py-1.5 rounded-md font-semibold transition-all text-slate-400 hover:text-white';
+        }
+      }
+
+      const tr = translations[lang] || translations.th;
+
+      // Header & Brand
+      const elAppSub = document.getElementById('appSubtitle');
+      if (elAppSub) elAppSub.innerText = tr.appSubtitle;
+      const elOpText = document.getElementById('headerOperationalText');
+      if (elOpText) elOpText.innerText = tr.headerOperational;
+      const elRoleCust = document.getElementById('txtRoleCust');
+      if (elRoleCust) elRoleCust.innerText = tr.roleCustomer;
+      const elRoleTech = document.getElementById('txtRoleTech');
+      if (elRoleTech) elRoleTech.innerText = tr.roleTech;
+      const elRoleAdmin = document.getElementById('txtRoleAdmin');
+      if (elRoleAdmin) elRoleAdmin.innerText = tr.roleAdmin;
+
+      // User Bar
+      const elWorkforce = document.getElementById('txtWorkforceStatus');
+      if (elWorkforce) elWorkforce.innerText = tr.workforceReady;
+      const elBtnRefresh = document.getElementById('txtBtnRefresh');
+      if (elBtnRefresh) elBtnRefresh.innerText = tr.btnRefresh;
+
+      // Customer Form
+      const elCreateHeader = document.getElementById('txtCreateTicketHeader');
+      if (elCreateHeader) elCreateHeader.innerText = tr.createTicketHeader;
+      const elBtnCreateQuick = document.getElementById('txtBtnCreateQuick');
+      if (elBtnCreateQuick) elBtnCreateQuick.innerText = tr.btnQuickCreate;
+      const elTitleLabel = document.getElementById('txtTitleLabel');
+      if (elTitleLabel) elTitleLabel.innerText = tr.titleLabel;
+      const elTicketTitle = document.getElementById('ticketTitle');
+      if (elTicketTitle) elTicketTitle.placeholder = tr.titlePlaceholder;
+      const elDescLabel = document.getElementById('txtDescLabel');
+      if (elDescLabel) elDescLabel.innerText = tr.descLabel;
+      const elTicketDesc = document.getElementById('ticketDesc');
+      if (elTicketDesc) elTicketDesc.placeholder = tr.descPlaceholder;
+      const elAddrLabel = document.getElementById('txtAddrLabel');
+      if (elAddrLabel) elAddrLabel.innerText = tr.addrLabel;
+      const elTicketAddress = document.getElementById('ticketAddress');
+      if (elTicketAddress) elTicketAddress.placeholder = tr.addrPlaceholder;
+      const elGeoLabel = document.getElementById('txtGeoLabel');
+      if (elGeoLabel) {
+        elGeoLabel.innerHTML = `
+          <svg class="w-3.5 h-3.5 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          ${tr.geoLabel}
+        `;
+      }
+      const elPresetsLabel = document.getElementById('txtPresetsLabel');
+      if (elPresetsLabel) elPresetsLabel.innerText = tr.presetsLabel;
+      const elPresetSiam = document.getElementById('btnPresetSiam');
+      if (elPresetSiam) {
+        elPresetSiam.innerHTML = `<svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" stroke-width="2"/><path stroke-width="2" d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg> ${tr.presetSiam}`;
+      }
+      const elPresetSilom = document.getElementById('btnPresetSilom');
+      if (elPresetSilom) {
+        elPresetSilom.innerHTML = `<svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" stroke-width="2"/><path stroke-width="2" d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg> ${tr.presetSilom}`;
+      }
+      const elPresetCharn = document.getElementById('btnPresetCharn');
+      if (elPresetCharn) {
+        elPresetCharn.innerHTML = `<svg class="w-3 h-3 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" stroke-width="2"/><path stroke-width="2" d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/></svg> ${tr.presetCharn}`;
+      }
+      const elBtnSubmitTicket = document.getElementById('txtBtnSubmitTicket');
+      if (elBtnSubmitTicket) elBtnSubmitTicket.innerText = tr.submitTicket;
+      const elMyTicketsHeader = document.getElementById('txtMyTicketsHeader');
+      if (elMyTicketsHeader) elMyTicketsHeader.innerText = tr.myTicketsHeader;
+
+      // Admin View
+      const elStatTotal = document.getElementById('txtStatTotalLabel');
+      if (elStatTotal) elStatTotal.innerText = tr.statTotalLabel;
+      const elStatPending = document.getElementById('txtStatPendingLabel');
+      if (elStatPending) elStatPending.innerText = tr.statPendingLabel;
+      const elStatActive = document.getElementById('txtStatActiveLabel');
+      if (elStatActive) elStatActive.innerText = tr.statActiveLabel;
+      const elStatCompleted = document.getElementById('txtStatCompletedLabel');
+      if (elStatCompleted) elStatCompleted.innerText = tr.statCompletedLabel;
+      const elAdminTitle = document.getElementById('txtAdminTableTitle');
+      if (elAdminTitle) {
+        elAdminTitle.innerHTML = `
+          <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+          <span>${tr.adminTableTitle}</span>
+        `;
+      }
+      const elAdminDesc = document.getElementById('txtAdminTableDesc');
+      if (elAdminDesc) elAdminDesc.innerText = tr.adminTableDesc;
+      const elAdminFilterAll = document.getElementById('adminFilterAll');
+      if (elAdminFilterAll) elAdminFilterAll.innerText = tr.adminFilterAll;
+      const elAdminFilterPending = document.getElementById('adminFilterPending');
+      if (elAdminFilterPending) elAdminFilterPending.innerText = tr.adminFilterPending;
+      const elAdminFilterActive = document.getElementById('adminFilterActive');
+      if (elAdminFilterActive) elAdminFilterActive.innerText = tr.adminFilterActive;
+      const elAdminFilterCompleted = document.getElementById('adminFilterCompleted');
+      if (elAdminFilterCompleted) elAdminFilterCompleted.innerText = tr.adminFilterCompleted;
+      const elBtnAdminRefresh = document.getElementById('txtBtnAdminRefresh');
+      if (elBtnAdminRefresh) elBtnAdminRefresh.innerText = tr.btnAdminRefresh;
+
+      const elThCode = document.getElementById('thColCode');
+      if (elThCode) elThCode.innerText = tr.colCode;
+      const elThTitle = document.getElementById('thColTitle');
+      if (elThTitle) elThTitle.innerText = tr.colTitle;
+      const elThCust = document.getElementById('thColCust');
+      if (elThCust) elThCust.innerText = tr.colCustomer;
+      const elThCoords = document.getElementById('thColCoords');
+      if (elThCoords) elThCoords.innerText = tr.colCoords;
+      const elThStatus = document.getElementById('thColStatus');
+      if (elThStatus) elThStatus.innerText = tr.colStatus;
+      const elThTech = document.getElementById('thColTech');
+      if (elThTech) elThTech.innerText = tr.colTech;
+      const elThAction = document.getElementById('thColAction');
+      if (elThAction) elThAction.innerText = tr.colAction;
+
+      // Tech View
+      const elTechTitle = document.getElementById('txtTechWorkspaceTitle');
+      if (elTechTitle) {
+        elTechTitle.innerHTML = `
+          <svg class="w-4 h-4 text-blue-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" /></svg>
+          <span>${tr.techWorkspaceTitle}</span>
+        `;
+      }
+      const elTechSub = document.getElementById('txtTechSub');
+      if (elTechSub) elTechSub.innerText = tr.techSub;
+      const elLblTabAll = document.getElementById('lblTechTabAll');
+      if (elLblTabAll) elLblTabAll.innerText = tr.techTabAll;
+      const elLblTabNew = document.getElementById('lblTechTabNew');
+      if (elLblTabNew) elLblTabNew.innerText = tr.techTabNew;
+      const elLblTabActive = document.getElementById('lblTechTabActive');
+      if (elLblTabActive) elLblTabActive.innerText = tr.techTabActive;
+      const elLblTabCompleted = document.getElementById('lblTechTabCompleted');
+      if (elLblTabCompleted) elLblTabCompleted.innerText = tr.techTabCompleted;
+      const elQueueHeader = document.getElementById('txtTechQueueHeader');
+      if (elQueueHeader) elQueueHeader.innerText = tr.techQueueHeader;
+      const elModalClose = document.getElementById('btnModalClose');
+      if (elModalClose) elModalClose.innerText = tr.modalClose;
+
+      updateUserBar();
+      renderTicketsForCurrentRole();
+
+      if (!silent) {
+        showToast(tr.toastLangChanged, tr.toastLangDesc, 'info', 2500);
+      }
+    }
+
+    function updateUserBar() {
+      const curUser = state.users[state.currentRole];
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      if (curUser) {
+        document.getElementById('userName').innerText = getLocalizedUserName(curUser, lang);
+        const roleMap = {
+          Customer: tr.roleBadgeCustomer,
+          Technician: tr.roleBadgeTech,
+          Admin: tr.roleBadgeAdmin
+        };
+        document.getElementById('userRoleBadge').innerText = roleMap[state.currentRole] || state.currentRole;
+        document.getElementById('userEmail').innerText = `${curUser.email} • ${curUser.phoneNumber}`;
+        document.getElementById('userAvatar').innerText = state.currentRole.slice(0, 2).toUpperCase();
+      }
+    }
+
+    // Role Switching
+    async function switchRole(role) {
+      state.currentRole = role;
+
+      const roleBtnMap = {
+        Customer: 'btnRoleCust',
+        Technician: 'btnRoleTech',
+        Admin: 'btnRoleAdmin'
+      };
+
+      Object.keys(roleBtnMap).forEach(r => {
+        const btn = document.getElementById(roleBtnMap[r]);
+        if (btn) {
+          if (r === role) {
+            btn.className = 'px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition-all bg-blue-600 text-white shadow-xs flex items-center gap-1.5 whitespace-nowrap cursor-pointer';
+          } else {
+            btn.className = 'px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition-all text-slate-400 hover:text-white flex items-center gap-1.5 whitespace-nowrap cursor-pointer';
+          }
+        }
+      });
+
+      const viewCust = document.getElementById('viewCustomer');
+      const viewTech = document.getElementById('viewTech');
+      const viewAdmin = document.getElementById('viewAdmin');
+
+      if (viewCust) viewCust.classList.toggle('hidden', role !== 'Customer');
+      if (viewTech) viewTech.classList.toggle('hidden', role !== 'Technician');
+      if (viewAdmin) viewAdmin.classList.toggle('hidden', role !== 'Admin');
+
+      updateUserBar();
+
+      if (role === 'Customer') {
+        setTimeout(() => { if (state.map) state.map.invalidateSize(); }, 200);
+      }
+
+      await refreshTickets();
+    }
+
+    // Refresh tickets according to current role
+    async function refreshTickets(silent = false) {
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets?limit=50`, {}, state.currentRole);
+        const data = await res.json();
+        if (res.ok) {
+          state.activeTickets = data.tickets || [];
+          renderTicketsForCurrentRole();
+        }
+      } catch (err) {
+        if (!silent) console.error('Fetch tickets error:', err);
+      }
+    }
+
+    function renderTicketsForCurrentRole() {
+      if (state.currentRole === 'Customer') {
+        renderCustomerTickets();
+      } else if (state.currentRole === 'Admin') {
+        renderAdminTickets();
+      } else if (state.currentRole === 'Technician') {
+        renderTechnicianJob();
+      }
+    }
+
+    // ================= CUSTOMER VIEW RENDERING =================
+    function renderCustomerTickets() {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      const container = document.getElementById('customerTicketList');
+      if (!container) return;
+
+      document.getElementById('custTicketCount').innerText = `${state.activeTickets.length} ${tr.ticketCountUnit}`;
+
+      if (state.activeTickets.length === 0) {
+        container.innerHTML = `<div class="text-center py-12 text-slate-500 text-xs">${tr.noTickets}</div>`;
+        return;
+      }
+
+      container.innerHTML = state.activeTickets.map(t => {
+        const coords = t.location?.coordinates || [0, 0];
+        const coordStr = Array.isArray(coords) ? coords.map(c => Number(c).toFixed(4)).join(', ') : '-';
+        const rawAddr = t.location?.address || '-';
+        const addrStr = translateTicketContent(rawAddr, lang);
+        const rawTitle = t.title || '-';
+        const titleStr = translateTicketContent(rawTitle, lang);
+        const rawDesc = t.description || '-';
+        const descStr = translateTicketContent(rawDesc, lang);
+
+        const techName = t.assignedTechnician ? getLocalizedUserName(t.assignedTechnician, lang) : tr.techWaiting;
+
+        return `
+          <div onclick="openTicketDetailModal('${t._id}')" class="p-3.5 sm:p-4 rounded-xl bg-[#090D16] border border-surface-border hover:border-blue-500/50 hover:bg-slate-900/60 cursor-pointer transition spring-hover space-y-2.5 group">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+              <span class="font-mono text-xs text-blue-400 font-semibold flex items-center gap-1.5 tracking-tight whitespace-nowrap">
+                ${t.ticketCode || '-'}
+                <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              </span>
+              ${getStatusBadge(t.status)}
+            </div>
+            <div class="font-semibold text-white text-sm group-hover:text-blue-200 transition tracking-tight">${titleStr}</div>
+            <div class="text-xs text-slate-400 line-clamp-2 leading-relaxed">${descStr}</div>
+            <div class="text-[11px] text-slate-500 flex items-center justify-between font-mono pt-2 border-t border-surface-border/60 flex-wrap gap-1">
+              <span class="truncate max-w-[60%]">${addrStr}</span>
+              <span class="text-slate-400 font-sans whitespace-nowrap">${techName}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ================= ADMIN VIEW RENDERING (DESKTOP TABLE + MOBILE CARDS) =================
+    function renderAdminTickets() {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      const tbody = document.getElementById('adminTicketTableBody');
+      const mobileContainer = document.getElementById('adminTicketMobileCards');
+
+      const total = state.activeTickets.length;
+      const pending = state.activeTickets.filter(t => t.status === 'Pending').length;
+      const active = state.activeTickets.filter(t => ['Assigned', 'EnRoute', 'InProgress'].includes(t.status)).length;
+      const completed = state.activeTickets.filter(t => t.status === 'Completed').length;
+
+      document.getElementById('statTotal').innerText = total;
+      document.getElementById('statPending').innerText = pending;
+      document.getElementById('statActive').innerText = active;
+      document.getElementById('statCompleted').innerText = completed;
+
+      let filtered = state.activeTickets;
+      if (state.adminFilter === 'Pending') {
+        filtered = state.activeTickets.filter(t => t.status === 'Pending');
+      } else if (state.adminFilter === 'active') {
+        filtered = state.activeTickets.filter(t => ['Assigned', 'EnRoute', 'InProgress'].includes(t.status));
+      } else if (state.adminFilter === 'Completed') {
+        filtered = state.activeTickets.filter(t => t.status === 'Completed');
+      }
+
+      if (filtered.length === 0) {
+        if (tbody) tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-500 text-xs">${tr.noAdminTickets}</td></tr>`;
+        if (mobileContainer) mobileContainer.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">${tr.noAdminTickets}</div>`;
+        return;
+      }
+
+      // 1. Render Desktop Table Body
+      if (tbody) {
+        tbody.innerHTML = filtered.map(t => {
+          const canAssign = t.status === 'Pending' || t.status === 'Assigned';
+          const coords = t.location?.coordinates || [0, 0];
+          const coordStr = Array.isArray(coords) ? coords.map(c => Number(c).toFixed(3)).join(', ') : '-';
+          const titleStr = translateTicketContent(t.title || '-', lang);
+          const addrStr = translateTicketContent(t.location?.address || '-', lang);
+          const clientName = getLocalizedUserName(t.customer, lang);
+          const techName = t.assignedTechnician ? getLocalizedUserName(t.assignedTechnician, lang) : `<span class="text-amber-400 font-medium whitespace-nowrap">${tr.unassignedText}</span>`;
+
+          return `
+            <tr class="hover:bg-slate-900/50 transition">
+              <td class="p-3 font-mono text-blue-400 font-semibold whitespace-nowrap">${t.ticketCode || '-'}</td>
+              <td class="p-3 font-semibold text-white tracking-tight">${titleStr}</td>
+              <td class="p-3 text-slate-300">${clientName}<br><span class="text-[11px] text-slate-500">${addrStr}</span></td>
+              <td class="p-3 font-mono text-slate-400 tabular-nums whitespace-nowrap">[${coordStr}]</td>
+              <td class="p-3 whitespace-nowrap min-w-[130px]">${getStatusBadge(t.status)}</td>
+              <td class="p-3 text-slate-300 whitespace-nowrap">${techName}</td>
+              <td class="p-3 text-right whitespace-nowrap min-w-[200px]">
+                <div class="flex items-center justify-end gap-2 flex-nowrap">
+                  <button onclick="openTicketDetailModal('${t._id}')" class="whitespace-nowrap px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium text-xs border border-surface-border transition spring-hover cursor-pointer" title="${tr.btnViewTicket}">
+                    ${tr.btnViewTicket}
+                  </button>
+                  ${canAssign ? `
+                    <button onclick="handleAssignToTech1('${t._id}')" class="whitespace-nowrap px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition spring-hover shadow-xs cursor-pointer">
+                      ${tr.btnAssignWichai}
+                    </button>
+                  ` : `<span class="whitespace-nowrap text-slate-500 font-mono text-[10px] px-2 py-1">${tr.statusLocked}</span>`}
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      // 2. Render Mobile Adaptive Cards (Prevents Horizontal Overflow)
+      if (mobileContainer) {
+        mobileContainer.innerHTML = filtered.map(t => {
+          const canAssign = t.status === 'Pending' || t.status === 'Assigned';
+          const coords = t.location?.coordinates || [0, 0];
+          const coordStr = Array.isArray(coords) ? coords.map(c => Number(c).toFixed(3)).join(', ') : '-';
+          const titleStr = translateTicketContent(t.title || '-', lang);
+          const addrStr = translateTicketContent(t.location?.address || '-', lang);
+          const clientName = getLocalizedUserName(t.customer, lang);
+          const techName = t.assignedTechnician ? getLocalizedUserName(t.assignedTechnician, lang) : `<span class="text-amber-400 font-medium">${tr.unassignedText}</span>`;
+
+          return `
+            <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-3 shadow-xs">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="font-mono text-xs text-blue-400 font-bold tracking-tight">${t.ticketCode || '-'}</span>
+                ${getStatusBadge(t.status)}
+              </div>
+              <div class="font-semibold text-white text-sm tracking-tight">${titleStr}</div>
+              <div class="text-xs text-slate-300 space-y-0.5">
+                <div class="font-medium text-slate-200">${clientName}</div>
+                <div class="text-[11px] text-slate-500 leading-relaxed">${addrStr}</div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-2 border-t border-surface-border flex-wrap gap-1">
+                <span>[${coordStr}]</span>
+                <span class="font-sans text-slate-300">${techName}</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 pt-1">
+                <button onclick="openTicketDetailModal('${t._id}')" class="w-full py-2.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-surface-border flex items-center justify-center min-h-[44px] cursor-pointer">
+                  ${tr.btnViewTicket}
+                </button>
+                ${canAssign ? `
+                  <button onclick="handleAssignToTech1('${t._id}')" class="w-full py-2.5 px-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium shadow-xs flex items-center justify-center min-h-[44px] cursor-pointer">
+                    ${tr.btnAssignWichai}
+                  </button>
+                ` : `
+                  <div class="w-full py-2.5 px-3 rounded-lg bg-slate-900 text-slate-500 text-xs font-mono flex items-center justify-center min-h-[44px]">
+                    ${tr.statusLocked}
+                  </div>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    function setAdminFilter(filter) {
+      state.adminFilter = filter;
+      const btns = [
+        { id: 'adminFilterAll', key: 'all' },
+        { id: 'adminFilterPending', key: 'Pending' },
+        { id: 'adminFilterActive', key: 'active' },
+        { id: 'adminFilterCompleted', key: 'Completed' }
+      ];
+      btns.forEach(b => {
+        const el = document.getElementById(b.id);
+        if (el) {
+          if (b.key === filter) {
+            el.className = 'px-2.5 py-1.5 rounded font-medium transition bg-blue-600 text-white shadow-xs cursor-pointer whitespace-nowrap';
+          } else {
+            el.className = 'px-2.5 py-1.5 rounded font-medium transition text-slate-400 hover:text-white cursor-pointer whitespace-nowrap';
+          }
+        }
+      });
+      renderAdminTickets();
+    }
+
+    // ================= TECHNICIAN VIEW RENDERING =================
+    function setTechFilter(filter) {
+      state.techFilter = filter;
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      const tabs = [
+        { id: 'techTabAll', key: 'all' },
+        { id: 'techTabNew', key: 'Assigned' },
+        { id: 'techTabActive', key: 'active' },
+        { id: 'techTabCompleted', key: 'Completed' }
+      ];
+
+      tabs.forEach(t => {
+        const btn = document.getElementById(t.id);
+        if (btn) {
+          if (t.key === filter) {
+            btn.className = 'px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition bg-blue-600 text-white shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap';
+          } else {
+            btn.className = 'px-2.5 sm:px-3 py-1.5 rounded-md font-medium transition text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer whitespace-nowrap';
+          }
+        }
+      });
+
+      const labelMap = {
+        all: tr.techTabAll,
+        Assigned: tr.techTabNew,
+        active: tr.techTabActive,
+        Completed: tr.techTabCompleted
+      };
+      const lbl = document.getElementById('techListFilterLabel');
+      if (lbl) lbl.innerText = labelMap[filter] || tr.techTabAll;
+
+      renderTechnicianJob();
+    }
+
+    function selectTechTicket(ticketId) {
+      state.selectedTechId = ticketId;
+      state.selectedTechTicket = state.activeTickets.find(t => t._id === ticketId);
+      renderTechnicianJob();
+      if (state.selectedTechTicket && state.selectedTechTicket.status === 'InProgress') {
+        setTimeout(initSignaturePad, 150);
+      }
+    }
+
+    function renderTechnicianJob() {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      const allTechTickets = state.activeTickets || [];
+
+      // Update counters in header tabs
+      const countAll = allTechTickets.length;
+      const countNew = allTechTickets.filter(t => t.status === 'Assigned').length;
+      const countActive = allTechTickets.filter(t => ['EnRoute', 'InProgress'].includes(t.status)).length;
+      const countCompleted = allTechTickets.filter(t => t.status === 'Completed').length;
+
+      const elAll = document.getElementById('techCountAll');
+      const elNew = document.getElementById('techCountNew');
+      const elActive = document.getElementById('techCountActive');
+      const elCompleted = document.getElementById('techCountCompleted');
+
+      if (elAll) elAll.innerText = countAll;
+      if (elNew) elNew.innerText = countNew;
+      if (elActive) elActive.innerText = countActive;
+      if (elCompleted) elCompleted.innerText = countCompleted;
+
+      // Filter tickets
+      let filtered = allTechTickets;
+      if (state.techFilter === 'Assigned') {
+        filtered = allTechTickets.filter(t => t.status === 'Assigned');
+      } else if (state.techFilter === 'active') {
+        filtered = allTechTickets.filter(t => ['EnRoute', 'InProgress'].includes(t.status));
+      } else if (state.techFilter === 'Completed') {
+        filtered = allTechTickets.filter(t => t.status === 'Completed');
+      }
+
+      // Render Left List
+      const listContainer = document.getElementById('techJobListContainer');
+      if (!listContainer) return;
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-12 text-slate-400 text-xs space-y-3 bg-[#090D16] rounded-xl border border-surface-border p-5">
+            <svg class="w-8 h-8 text-slate-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+            <div>${tr.techCategoryEmpty}</div>
+            <button onclick="switchRole('Admin')" class="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition spring-hover shadow-xs text-xs cursor-pointer touch-target flex items-center justify-center">
+              ${tr.techGoToAdmin}
+            </button>
+          </div>
+        `;
+      } else {
+        if (!state.selectedTechId || !filtered.some(t => t._id === state.selectedTechId)) {
+          state.selectedTechId = filtered[0]._id;
+          state.selectedTechTicket = filtered[0];
+        } else {
+          state.selectedTechTicket = allTechTickets.find(t => t._id === state.selectedTechId) || filtered[0];
+        }
+
+        listContainer.innerHTML = filtered.map(t => {
+          const isSelected = state.selectedTechTicket && state.selectedTechTicket._id === t._id;
+          const borderCls = isSelected ? 'border-blue-500 ring-1 ring-blue-500 bg-blue-950/20' : 'border-surface-border bg-[#090D16] hover:border-slate-600';
+          const titleStr = translateTicketContent(t.title, lang);
+          const addrStr = translateTicketContent(t.location?.address, lang);
+          const clientName = getLocalizedUserName(t.customer, lang);
+
+          return `
+            <div onclick="selectTechTicket('${t._id}')" class="p-3.5 rounded-xl border ${borderCls} cursor-pointer transition spring-hover space-y-2 text-left">
+              <div class="flex items-center justify-between gap-2 flex-wrap">
+                <span class="font-mono text-xs text-blue-400 font-bold whitespace-nowrap">${t.ticketCode}</span>
+                ${getStatusBadge(t.status)}
+              </div>
+              <div class="font-semibold text-white text-xs truncate tracking-tight">${titleStr}</div>
+              <div class="text-[11px] text-slate-400 flex items-center justify-between flex-wrap gap-1">
+                <span>${clientName}</span>
+                <span class="font-mono text-[10px] text-slate-500">${new Date(t.createdAt).toLocaleTimeString()}</span>
+              </div>
+              <div class="text-[11px] text-slate-500 truncate">${addrStr}</div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Right Detail
+      const detailContainer = document.getElementById('techJobDetailContainer');
+      if (!detailContainer) return;
+
+      const activeJob = state.selectedTechTicket;
+      if (!activeJob) {
+        detailContainer.innerHTML = `<div class="text-center py-20 text-slate-500 text-xs">${tr.techSelectPrompt}</div>`;
+        return;
+      }
+
+      const jobTitle = translateTicketContent(activeJob.title, lang);
+      const jobDesc = translateTicketContent(activeJob.description, lang);
+      const jobAddr = translateTicketContent(activeJob.location?.address, lang);
+      const jobCustomer = getLocalizedUserName(activeJob.customer, lang);
+
+      // CASE A: COMPLETED
+      if (activeJob.status === 'Completed') {
+        const totalCost = (activeJob.items || []).reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+        detailContainer.innerHTML = `
+          <div class="space-y-4">
+            <!-- Completed Banner -->
+            <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3 flex-wrap">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <div>
+                  <div class="font-bold text-white text-sm tracking-tight">${tr.techCompletedBanner}</div>
+                  <div class="text-xs text-emerald-300 font-mono">${tr.closedAt} ${new Date(activeJob.closedAt || activeJob.updatedAt).toLocaleString()}</div>
+                </div>
+              </div>
+              ${getStatusBadge(activeJob.status)}
+            </div>
+
+            <!-- Job Info Card -->
+            <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-2">
+              <div class="flex items-center justify-between border-b border-surface-border pb-2 flex-wrap gap-2">
+                <span class="font-mono text-xs text-blue-400 font-bold">${activeJob.ticketCode}</span>
+                <span class="text-xs text-slate-400">${jobAddr}</span>
+              </div>
+              <div class="text-sm font-bold text-white tracking-tight">${jobTitle}</div>
+              <div class="text-xs text-slate-300 leading-relaxed">${jobDesc}</div>
+              <div class="text-xs text-slate-400 font-mono pt-1">${tr.customerLabel} ${jobCustomer} (${activeJob.customer?.phoneNumber || '-'})</div>
+            </div>
+
+            <!-- Parts Summary -->
+            <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-2">
+              <h4 class="text-xs font-bold text-slate-300 uppercase font-mono">${tr.partsHeader}</h4>
+              <div class="divide-y divide-surface-border text-xs text-slate-200">
+                ${(activeJob.items && activeJob.items.length > 0) ? activeJob.items.map(item => `
+                  <div class="py-1.5 flex justify-between">
+                    <span>${translateTicketContent(item.itemName, lang)} &times; ${item.quantity}</span>
+                    <span class="font-mono text-emerald-400 tabular-nums">฿${(item.unitPrice * item.quantity).toFixed(2)}</span>
+                  </div>
+                `).join('') : `<div class="py-2 text-slate-500 text-center">${tr.noParts}</div>`}
+                <div class="pt-2 flex justify-between font-bold text-white border-t border-surface-border">
+                  <span>${tr.totalPartsPrice}</span>
+                  <span class="font-mono text-emerald-400 tabular-nums">฿${totalCost.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Evidence Photos -->
+            <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-3">
+              <h4 class="text-xs font-bold text-slate-300 uppercase font-mono">${tr.evidenceHeader}</h4>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 rounded-lg bg-surface border border-surface-border text-center">
+                  <span class="text-[11px] text-slate-400 font-semibold">${tr.beforeLabel}</span>
+                  <div class="mt-1.5 h-20 rounded-lg bg-[#090D16] flex items-center justify-center text-xs text-emerald-400 font-mono">
+                    ${activeJob.attachments?.some(a => a.photoType === 'Before') ? tr.photoDone : tr.photoEmpty}
+                  </div>
+                </div>
+                <div class="p-3 rounded-lg bg-surface border border-surface-border text-center">
+                  <span class="text-[11px] text-slate-400 font-semibold">${tr.afterLabel}</span>
+                  <div class="mt-1.5 h-20 rounded-lg bg-[#090D16] flex items-center justify-center text-xs text-emerald-400 font-mono">
+                    ${activeJob.attachments?.some(a => a.photoType === 'After') ? tr.photoDone : tr.photoEmpty}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Signature -->
+            <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-2">
+              <h4 class="text-xs font-bold text-slate-300 uppercase font-mono">${tr.signOffHeader}</h4>
+              <div class="p-3 bg-white rounded-lg flex items-center justify-center border border-surface-border">
+                ${activeJob.customerSignatureUrl ? `<img src="${activeJob.customerSignatureUrl}" class="max-h-24" alt="Customer Signature" />` : `<span class="text-slate-400 text-xs">${tr.signHint}</span>`}
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // CASE B: ACTIVE (Assigned, EnRoute, InProgress)
+      const beforeCount = activeJob.attachments?.filter(a => a.photoType === 'Before').length || 0;
+      const afterCount = activeJob.attachments?.filter(a => a.photoType === 'After').length || 0;
+      const canEnRoute = activeJob.status === 'Assigned';
+      const canCheckIn = activeJob.status === 'EnRoute';
+      const isInProgress = activeJob.status === 'InProgress';
+
+      detailContainer.innerHTML = `
+        <div class="space-y-4">
+          <!-- Active Job Header -->
+          <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-2">
+            <div class="flex items-center justify-between border-b border-surface-border pb-2 flex-wrap gap-2">
+              <span class="font-mono text-xs text-blue-400 font-bold">${activeJob.ticketCode}</span>
+              ${getStatusBadge(activeJob.status)}
+            </div>
+            <div class="text-sm font-bold text-white tracking-tight">${jobTitle}</div>
+            <div class="text-xs text-slate-300 leading-relaxed">${jobDesc}</div>
+            <div class="text-xs text-slate-400 bg-slate-900/60 p-3 rounded-lg border border-surface-border space-y-1">
+              <div><strong class="text-slate-300">${tr.customerLabel}</strong> ${jobCustomer} (${activeJob.customer?.phoneNumber || '-'})</div>
+              <div><strong class="text-slate-300">${tr.locationLabel}</strong> ${jobAddr}</div>
+              <div class="font-mono text-blue-400 text-[11px]">[${activeJob.location.coordinates.join(', ')}]</div>
+            </div>
+          </div>
+
+          <!-- GEOFENCE RADAR SIMULATOR -->
+          <div class="p-4 rounded-xl bg-gradient-to-b from-[#090D16] to-surface-card border border-blue-500/30 space-y-3 shadow-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span id="radarPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span id="radarDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+                </span>
+                <span class="text-xs font-bold text-white uppercase tracking-wider">${tr.geofenceHeader}</span>
+              </div>
+              <span id="geofenceResultText" class="text-xs font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 whitespace-nowrap">
+                ${tr.readyToCheckin}
+              </span>
+            </div>
+
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              ${tr.geofenceDesc}
+            </p>
+
+            <!-- Distance Slider -->
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-mono">
+                <span class="text-slate-400">${tr.simDistanceLabel}</span>
+                <span id="simulatedDistanceText" class="text-blue-400 font-bold text-xs tabular-nums">45m ${tr.inRadiusSuffix}</span>
+              </div>
+              <input type="range" id="geofenceSlider" min="10" max="800" value="45" step="5" oninput="handleDistanceChange(this.value)" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+              <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                <span>10m</span>
+                <span class="text-amber-400 font-semibold">200m</span>
+                <span>800m</span>
+              </div>
+              
+              <!-- Quick Distance Presets -->
+              <div class="flex items-center gap-1.5 pt-1 flex-wrap">
+                <span class="text-[11px] text-slate-400">${tr.distPresetsLabel}</span>
+                <button type="button" onclick="setSimulatedDistance(25)" class="px-2 py-1 rounded bg-[#090D16] hover:bg-emerald-950/40 hover:text-emerald-300 text-slate-300 text-[11px] border border-surface-border transition cursor-pointer whitespace-nowrap">${tr.preset25m}</button>
+                <button type="button" onclick="setSimulatedDistance(120)" class="px-2 py-1 rounded bg-[#090D16] hover:bg-emerald-950/40 hover:text-emerald-300 text-slate-300 text-[11px] border border-surface-border transition cursor-pointer whitespace-nowrap">${tr.preset120m}</button>
+                <button type="button" onclick="setSimulatedDistance(350)" class="px-2 py-1 rounded bg-[#090D16] hover:bg-rose-950/40 hover:text-rose-300 text-slate-300 text-[11px] border border-surface-border transition cursor-pointer whitespace-nowrap">${tr.preset350m}</button>
+              </div>
+            </div>
+
+            <!-- Action Buttons for State Machine -->
+            <div class="grid grid-cols-2 gap-2 pt-2">
+              <button id="btnEnRoute" onclick="handleTechStatusChange('EnRoute')" ${!canEnRoute ? 'disabled class="py-2.5 px-3 rounded-lg bg-slate-800 text-slate-500 text-xs cursor-not-allowed min-h-[44px]"' : 'class="py-2.5 px-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs transition spring-hover shadow-xs cursor-pointer min-h-[44px]"'}>
+                ${tr.btnEnRoute}
+              </button>
+              <button id="btnCheckIn" onclick="handleTechStatusChange('InProgress')" ${!canCheckIn ? 'disabled class="py-2.5 px-3 rounded-lg bg-slate-800 text-slate-500 text-xs cursor-not-allowed min-h-[44px]"' : 'class="py-2.5 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs transition spring-hover shadow-xs cursor-pointer min-h-[44px]"'}>
+                ${tr.btnCheckIn}
+              </button>
+            </div>
+            <div id="geofenceApiAlert" class="hidden text-xs p-2.5 rounded-lg border"></div>
+          </div>
+
+          ${isInProgress ? `
+            <!-- Spare Parts Section -->
+            <div class="border border-surface-border rounded-xl p-4 bg-[#090D16] space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-2">
+                  <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
+                  ${tr.partsHeader}
+                </h3>
+                <span class="text-[11px] text-slate-400 font-mono">${tr.partsBadge}</span>
+              </div>
+
+              <!-- Quick Spare Parts -->
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="text-[11px] text-slate-400">${tr.quickPartsLabel}</span>
+                <button type="button" onclick="quickAddPart('น้ำยาแอร์ R-410A (กก.)', 2, 450)" class="px-2 py-1 rounded bg-surface border border-surface-border text-slate-300 text-[11px] hover:text-white transition cursor-pointer whitespace-nowrap">+ R-410A ฿450</button>
+                <button type="button" onclick="quickAddPart('คาปาซิเตอร์พัดลมแอร์', 1, 350)" class="px-2 py-1 rounded bg-surface border border-surface-border text-slate-300 text-[11px] hover:text-white transition cursor-pointer whitespace-nowrap">+ Capacitor ฿350</button>
+                <button type="button" onclick="quickAddPart('ล้างแอร์คอยล์เย็นชุดใหญ่', 1, 800)" class="px-2 py-1 rounded bg-surface border border-surface-border text-slate-300 text-[11px] hover:text-white transition cursor-pointer whitespace-nowrap">+ Coil Clean ฿800</button>
+              </div>
+
+              <!-- Input Form with Empty-Safe Numeric Inputs -->
+              <div class="flex flex-wrap gap-2">
+                <input type="text" id="partName" placeholder="${tr.partNamePlaceholder}" class="flex-1 min-w-[140px] bg-surface border border-surface-border rounded-lg px-3 py-2 text-xs text-white placeholder:text-slate-600">
+                <input type="number" id="partQty" placeholder="1" value="1" min="1" class="w-20 bg-surface border border-surface-border rounded-lg px-3 py-2 text-xs text-white text-center tabular-nums">
+                <input type="number" id="partPrice" placeholder="0" value="450" min="0" class="w-24 bg-surface border border-surface-border rounded-lg px-3 py-2 text-xs text-white text-right tabular-nums">
+                <button onclick="handleAddPart()" class="px-3.5 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition spring-hover cursor-pointer touch-target flex items-center justify-center whitespace-nowrap">${tr.btnAddPart}</button>
+              </div>
+
+              <div id="partsList" class="divide-y divide-surface-border text-xs text-slate-300">
+                ${(activeJob.items && activeJob.items.length > 0) ? activeJob.items.map(item => `
+                  <div class="py-2 flex items-center justify-between">
+                    <span class="font-medium text-white">${translateTicketContent(item.itemName, lang)} &times; ${item.quantity}</span>
+                    <div class="flex items-center gap-2.5">
+                      <span class="font-mono text-emerald-400 tabular-nums">฿${(item.unitPrice * item.quantity).toFixed(2)}</span>
+                      <button onclick="handleRemovePart('${item._id}')" class="p-1.5 rounded hover:bg-rose-500/20 text-rose-400 transition cursor-pointer" title="Remove">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                `).join('') : `<div class="py-2 text-slate-500 text-center">${tr.noParts}</div>`}
+              </div>
+            </div>
+
+            <!-- Evidence Photos Section -->
+            <div class="border border-surface-border rounded-xl p-4 bg-[#090D16] space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-2">
+                  <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  ${tr.evidenceHeader}
+                </h3>
+                <div class="flex gap-2 text-[11px] font-mono">
+                  <span class="px-2 py-0.5 rounded border ${beforeCount >= 1 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'} whitespace-nowrap">Before: ${beforeCount}</span>
+                  <span class="px-2 py-0.5 rounded border ${afterCount >= 1 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border-rose-500/20'} whitespace-nowrap">After: ${afterCount}</span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div class="p-3 rounded-lg bg-surface border border-surface-border flex flex-col items-center justify-center gap-2 text-center">
+                  <span class="text-xs font-semibold text-slate-300">${tr.beforeLabel}</span>
+                  <div class="w-full h-20 rounded-lg bg-[#090D16] border border-dashed border-slate-700 flex items-center justify-center text-slate-500 text-xs overflow-hidden">
+                    ${beforeCount >= 1 ? `<span class="text-emerald-400 font-mono text-xs">${tr.photoDone}</span>` : tr.photoEmpty}
+                  </div>
+                  <input type="file" id="fileBefore" accept="image/*" onchange="handleRealFileUpload(event, 'Before')" class="hidden">
+                  <div class="grid grid-cols-2 gap-1.5 w-full">
+                    <button onclick="handleSimulatePhoto('Before')" class="py-2 px-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-medium border border-surface-border transition cursor-pointer min-h-[40px]">
+                      ${tr.btnSimulate}
+                    </button>
+                    <button onclick="document.getElementById('fileBefore').click()" class="py-2 px-2 rounded bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-[11px] font-medium border border-blue-500/30 transition cursor-pointer min-h-[40px]">
+                      ${tr.btnAttachFile}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-lg bg-surface border border-surface-border flex flex-col items-center justify-center gap-2 text-center">
+                  <span class="text-xs font-semibold text-slate-300">${tr.afterLabel}</span>
+                  <div class="w-full h-20 rounded-lg bg-[#090D16] border border-dashed border-slate-700 flex items-center justify-center text-slate-500 text-xs overflow-hidden">
+                    ${afterCount >= 1 ? `<span class="text-emerald-400 font-mono text-xs">${tr.photoDone}</span>` : tr.photoEmpty}
+                  </div>
+                  <input type="file" id="fileAfter" accept="image/*" onchange="handleRealFileUpload(event, 'After')" class="hidden">
+                  <div class="grid grid-cols-2 gap-1.5 w-full">
+                    <button onclick="handleSimulatePhoto('After')" class="py-2 px-2 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-medium border border-surface-border transition cursor-pointer min-h-[40px]">
+                      ${tr.btnSimulate}
+                    </button>
+                    <button onclick="document.getElementById('fileAfter').click()" class="py-2 px-2 rounded bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 text-[11px] font-medium border border-blue-500/30 transition cursor-pointer min-h-[40px]">
+                      ${tr.btnAttachFile}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Digital Sign-off -->
+            <div class="border border-surface-border rounded-xl p-4 bg-[#090D16] space-y-3">
+              <div class="flex items-center justify-between">
+                <h3 class="font-bold text-xs text-white uppercase tracking-wider flex items-center gap-2">
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                  ${tr.signOffHeader}
+                </h3>
+                <button onclick="clearSignaturePad()" class="text-xs text-slate-400 hover:text-white underline cursor-pointer">${tr.btnClearSign}</button>
+              </div>
+
+              <div class="relative rounded-lg overflow-hidden border border-surface-border bg-white">
+                <canvas id="signaturePad" width="500" height="130" class="w-full h-[130px] touch-none cursor-crosshair"></canvas>
+                <div class="absolute bottom-1 right-2 text-[10px] text-slate-400 pointer-events-none font-mono">
+                  ${tr.signHint}
+                </div>
+              </div>
+
+              <button id="btnSignOff" onclick="handleSignOff()" class="w-full py-3 px-4 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition spring-hover shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer touch-target">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                ${tr.btnSubmitSignOff}
+              </button>
+            </div>
+          ` : `
+            <div class="p-4 rounded-xl bg-slate-900/60 border border-surface-border text-center text-xs text-slate-400 space-y-1">
+              <div>${tr.inProgressNotice}</div>
+            </div>
+          `}
+        </div>
+      `;
+    }
+
+    // Modal Details Logic
+    function openTicketDetailModal(ticketId) {
+      const t = state.activeTickets.find(item => item._id === ticketId);
+      if (!t) return;
+
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      const modal = document.getElementById('ticketDetailModal');
+      document.getElementById('modalTicketCode').innerText = `${tr.colCode}: ${t.ticketCode}`;
+      document.getElementById('modalTicketStatusBadge').innerHTML = getStatusBadge(t.status);
+
+      const coords = t.location?.coordinates || [0, 0];
+      const coordStr = Array.isArray(coords) ? coords.map(c => Number(c).toFixed(6)).join(', ') : '-';
+      const totalCost = (t.items || []).reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+
+      const titleStr = translateTicketContent(t.title, lang);
+      const descStr = translateTicketContent(t.description, lang);
+      const addrStr = translateTicketContent(t.location?.address, lang);
+      const clientName = getLocalizedUserName(t.customer, lang);
+      const techName = t.assignedTechnician ? getLocalizedUserName(t.assignedTechnician, lang) : tr.modalUnassigned;
+
+      const body = document.getElementById('modalTicketContent');
+      body.innerHTML = `
+        <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-2">
+          <div class="text-sm font-bold text-white tracking-tight">${titleStr}</div>
+          <div class="text-xs text-slate-300 leading-relaxed">${descStr}</div>
+          <div class="text-[11px] text-slate-400 pt-2 border-t border-surface-border flex justify-between flex-wrap gap-1">
+            <span>${tr.modalReportedBy} ${clientName} (${t.customer?.phoneNumber || '-'})</span>
+            <span>${tr.modalTech} ${techName}</span>
+          </div>
+          <div class="text-[11px] text-blue-400 font-mono">${addrStr} [${coordStr}]</div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-2">
+          <div class="font-bold text-slate-300 uppercase tracking-wider text-[11px]">${tr.modalPartsHeader} (${(t.items || []).length} ${tr.ticketCountUnit})</div>
+          <div class="divide-y divide-surface-border">
+            ${(t.items && t.items.length > 0) ? t.items.map(item => `
+              <div class="py-1.5 flex justify-between text-xs">
+                <span>${translateTicketContent(item.itemName, lang)} &times; ${item.quantity}</span>
+                <span class="font-mono text-emerald-400 tabular-nums">฿${(item.unitPrice * item.quantity).toFixed(2)}</span>
+              </div>
+            `).join('') : `<div class="py-1 text-slate-500 text-center">${tr.modalNoParts}</div>`}
+            <div class="pt-2 flex justify-between font-bold text-white border-t border-surface-border">
+              <span>${tr.modalTotalCost}</span>
+              <span class="font-mono text-emerald-400 tabular-nums">฿${totalCost.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-2">
+          <div class="font-bold text-slate-300 uppercase tracking-wider text-[11px]">${tr.modalEvidenceHeader} (${(t.attachments || []).length})</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-2 rounded-lg bg-surface border border-surface-border text-center">
+              <span class="text-[10px] text-slate-400">${tr.modalBefore}</span>
+              <div class="mt-1 h-14 rounded bg-[#090D16] flex items-center justify-center text-[11px] font-mono text-emerald-400">
+                ${t.attachments?.some(a => a.photoType === 'Before') ? tr.modalHasBefore : `<span class="text-slate-500">${tr.modalNoPhoto}</span>`}
+              </div>
+            </div>
+            <div class="p-2 rounded-lg bg-surface border border-surface-border text-center">
+              <span class="text-[10px] text-slate-400">${tr.modalAfter}</span>
+              <div class="mt-1 h-14 rounded bg-[#090D16] flex items-center justify-center text-[11px] font-mono text-emerald-400">
+                ${t.attachments?.some(a => a.photoType === 'After') ? tr.modalHasAfter : `<span class="text-slate-500">${tr.modalNoPhoto}</span>`}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        ${t.customerSignatureUrl ? `
+          <div class="p-4 rounded-xl bg-[#090D16] border border-surface-border space-y-2">
+            <div class="font-bold text-slate-300 uppercase tracking-wider text-[11px]">${tr.modalSignHeader}</div>
+            <div class="p-2 bg-white rounded-lg flex items-center justify-center">
+              <img src="${t.customerSignatureUrl}" class="max-h-20" alt="Customer Signature" />
+            </div>
+          </div>
+        ` : ''}
+      `;
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeTicketDetailModal() {
+      const modal = document.getElementById('ticketDetailModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // Geofence Distance Slider & Actions
+    function setSimulatedDistance(meters) {
+      const slider = document.getElementById('geofenceSlider');
+      if (slider) {
+        slider.value = meters;
+        handleDistanceChange(meters);
+      }
+    }
+
+    function handleDistanceChange(meters) {
+      meters = parseInt(meters);
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      const txt = document.getElementById('simulatedDistanceText');
+      const badge = document.getElementById('geofenceResultText');
+      const ping = document.getElementById('radarPing');
+      const dot = document.getElementById('radarDot');
+
+      if (meters <= 200) {
+        txt.innerText = `${meters}m ${tr.inRadiusSuffix}`;
+        txt.className = 'text-emerald-400 font-bold text-xs tabular-nums';
+        badge.innerText = tr.readyToCheckin;
+        badge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 whitespace-nowrap';
+        ping.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75';
+        dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500';
+      } else {
+        txt.innerText = `${meters}m ${tr.outRadiusSuffix}`;
+        txt.className = 'text-rose-400 font-bold text-xs tabular-nums';
+        badge.innerText = tr.outOfZone;
+        badge.className = 'text-xs font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30 whitespace-nowrap';
+        ping.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75';
+        dot.className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500';
+      }
+    }
+
+    async function handleTechStatusChange(nextStatus) {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      if (!state.selectedTechTicket) {
+        showToast(tr.toastMissingTitle, 'Please select a ticket first', 'warning');
+        return;
+      }
+
+      const ticketId = state.selectedTechTicket._id;
+      const targetCoords = state.selectedTechTicket.location.coordinates;
+      const distanceMeters = parseInt(document.getElementById('geofenceSlider').value);
+      const offsetLat = distanceMeters / 111000;
+      const currentLng = targetCoords[0];
+      const currentLat = targetCoords[1] + offsetLat;
+
+      const alertBox = document.getElementById('geofenceApiAlert');
+      if (alertBox) alertBox.classList.remove('hidden');
+
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets/${ticketId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nextStatus, currentLng, currentLat })
+        }, 'Technician');
+        const data = await res.json();
+
+        if (res.ok) {
+          if (alertBox) {
+            alertBox.className = 'text-xs p-2.5 rounded-lg border bg-emerald-500/10 border-emerald-500/30 text-emerald-300';
+            alertBox.innerText = data.message;
+          }
+          showToast(tr.toastStatusUpdateSuccess, data.message, 'success', 3500);
+          await refreshTickets();
+        } else if (res.status === 422) {
+          if (alertBox) {
+            alertBox.className = 'text-xs p-2.5 rounded-lg border bg-rose-500/10 border-rose-500/30 text-rose-300';
+            alertBox.innerText = data.message;
+          }
+          showToast(tr.toastGeofenceBreach, data.message, 'error', 4500);
+        } else {
+          if (alertBox) {
+            alertBox.className = 'text-xs p-2.5 rounded-lg border bg-amber-500/10 border-amber-500/30 text-amber-300';
+            alertBox.innerText = data.message;
+          }
+          showToast(tr.toastStatusUpdateFail, data.message, 'warning', 4000);
+        }
+      } catch (err) {
+        showToast(tr.toastConnError, err.message, 'error');
+      }
+    }
+
+    // Ticket Creation Handler
+    async function handleCreateTicket(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+
+      const titleEl = document.getElementById('ticketTitle');
+      const descEl = document.getElementById('ticketDesc');
+      const addrEl = document.getElementById('ticketAddress');
+      const lngEl = document.getElementById('ticketLng');
+      const latEl = document.getElementById('ticketLat');
+
+      const title = titleEl ? titleEl.value.trim() : '';
+      const description = descEl ? descEl.value.trim() : '';
+      const address = addrEl ? addrEl.value.trim() : '';
+      let lng = lngEl ? parseFloat(lngEl.value) : 100.523186;
+      let lat = latEl ? parseFloat(latEl.value) : 13.736717;
+      if (isNaN(lng)) lng = 100.523186;
+      if (isNaN(lat)) lat = 13.736717;
+
+      if (!title) {
+        showToast(tr.toastMissingTitle, tr.toastEnterTitle, 'warning');
+        if (titleEl) titleEl.focus();
+        return;
+      }
+      if (!description) {
+        showToast(tr.toastMissingTitle, tr.toastMissingDesc, 'warning');
+        if (descEl) descEl.focus();
+        return;
+      }
+      if (!address) {
+        showToast(tr.toastMissingTitle, tr.toastMissingAddr, 'warning');
+        if (addrEl) addrEl.focus();
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitTicket');
+      const btnQuick = document.getElementById('btnHeaderSubmit');
+      if (btn) btn.disabled = true;
+      if (btnQuick) btnQuick.disabled = true;
+
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, description, address, lng, lat })
+        }, 'Customer');
+        const data = await res.json();
+        if (res.ok && data.ticket) {
+          showToast(tr.toastCreateSuccess, `${tr.toastTicketCode}: ${data.ticket.ticketCode}`, 'success', 5000);
+          if (titleEl) titleEl.value = '';
+          if (descEl) descEl.value = '';
+          await refreshTickets();
+        } else {
+          showToast(tr.toastCreateFail, data.message || data.error || tr.toastCheckInfo, 'error');
+        }
+      } catch (err) {
+        showToast(tr.toastConnError, err.message, 'error');
+      } finally {
+        if (btn) btn.disabled = false;
+        if (btnQuick) btnQuick.disabled = false;
+      }
+    }
+
+    // Admin Dispatch Handler
+    async function handleAssignToTech1(ticketId) {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      if (!state.users.Technician) {
+        await loginRole('Technician');
+      }
+      const tech1Id = state.users.Technician ? state.users.Technician.id : null;
+
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets/${ticketId}/assign`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ technicianId: tech1Id })
+        }, 'Admin');
+        const data = await res.json();
+        if (res.ok) {
+          showToast(tr.toastAssignSuccess, tr.toastAssignSuccessDesc, 'success', 4000);
+          await refreshTickets();
+        } else {
+          showToast(tr.toastAssignFail, data.message, 'error');
+        }
+      } catch (e) {
+        showToast(tr.toastConnError, e.message, 'error');
+      }
+    }
+
+    // Parts Management
+    async function quickAddPart(itemName, quantity, unitPrice) {
+      if (!state.selectedTechTicket) return;
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets/${state.selectedTechTicket._id}/items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemName, quantity, unitPrice })
+        }, 'Technician');
+        const data = await res.json();
+        if (res.ok) {
+          showToast(translations[state.currentLang].toastPartAdded, itemName, 'success');
+          await refreshTickets();
+        } else {
+          showToast(translations[state.currentLang].toastPartAddFail, data.message, 'error');
+        }
+      } catch (err) {
+        showToast('Error', err.message, 'error');
+      }
+    }
+
+    async function handleAddPart() {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      if (!state.selectedTechTicket) return;
+      const itemName = document.getElementById('partName').value.trim();
+      const quantity = parseInt(document.getElementById('partQty').value) || 1;
+      const unitPrice = parseFloat(document.getElementById('partPrice').value) || 0;
+
+      if (!itemName) {
+        showToast(tr.toastMissingTitle, tr.partNamePlaceholder, 'warning');
+        return;
+      }
+
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets/${state.selectedTechTicket._id}/items`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ itemName, quantity, unitPrice })
+        }, 'Technician');
+        const data = await res.json();
+        if (res.ok) {
+          document.getElementById('partName').value = '';
+          showToast(tr.toastPartAdded, itemName, 'success');
+          await refreshTickets();
+        } else {
+          showToast(tr.toastPartAddFail, data.message, 'error');
+        }
+      } catch (e) {
+        showToast(tr.toastConnError, e.message, 'error');
+      }
+    }
+
+    async function handleRemovePart(itemId) {
+      if (!state.selectedTechTicket) return;
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets/${state.selectedTechTicket._id}/items/${itemId}`, {
+          method: 'DELETE'
+        }, 'Technician');
+        const data = await res.json();
+        if (res.ok) {
+          showToast(tr.toastPartRemoved, tr.toastPartRemovedDesc, 'info');
+          await refreshTickets();
+        } else {
+          showToast('Error', data.message, 'error');
+        }
+      } catch (err) {
+        showToast(tr.toastConnError, err.message, 'error');
+      }
+    }
+
+    // Photo Handling
+    async function handleSimulatePhoto(photoType) {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      if (!state.selectedTechTicket) return;
+
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets/${state.selectedTechTicket._id}/attachments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            photoType,
+            fileUrl: `/uploads/${photoType.toLowerCase()}-sample-${Date.now()}.jpg`
+          })
+        }, 'Technician');
+        const data = await res.json();
+        if (res.ok) {
+          showToast(tr.toastPhotoAttached, `${photoType} Photo`, 'success');
+          await refreshTickets();
+        } else {
+          showToast(tr.toastPhotoAttachFail, data.message, 'error');
+        }
+      } catch (e) {
+        showToast(tr.toastConnError, e.message, 'error');
+      }
+    }
+
+    async function handleRealFileUpload(event, photoType) {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      const file = event.target.files && event.target.files[0];
+      if (!file || !state.selectedTechTicket) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        try {
+          const res = await apiFetch(`${API_BASE}/tickets/${state.selectedTechTicket._id}/attachments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ photoType, fileUrl: e.target.result })
+          }, 'Technician');
+          const data = await res.json();
+          if (res.ok) {
+            showToast(tr.toastPhotoAttached, `${photoType} (${file.name})`, 'success');
+            await refreshTickets();
+          } else {
+            showToast(tr.toastPhotoAttachFail, data.message || data.error, 'error');
+          }
+        } catch (err) {
+          showToast(tr.toastConnError, err.message, 'error');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Signature Canvas Pad
+    let canvas, ctx, isDrawing = false;
+    function initSignaturePad() {
+      canvas = document.getElementById('signaturePad');
+      if (!canvas) return;
+      ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.strokeStyle = '#0F172A';
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+
+      function getPos(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      }
+
+      function start(e) {
+        e.preventDefault();
+        isDrawing = true;
+        const p = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+      }
+
+      function draw(e) {
+        if (!isDrawing) return;
+        e.preventDefault();
+        const p = getPos(e);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+      }
+
+      function stop() { isDrawing = false; }
+
+      canvas.addEventListener('mousedown', start);
+      canvas.addEventListener('mousemove', draw);
+      window.addEventListener('mouseup', stop);
+
+      canvas.addEventListener('touchstart', start, { passive: false });
+      canvas.addEventListener('touchmove', draw, { passive: false });
+      window.addEventListener('touchend', stop);
+    }
+
+    function clearSignaturePad() {
+      if (ctx && canvas) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    function hasSignature() {
+      if (!canvas) return false;
+      const blank = document.createElement('canvas');
+      blank.width = canvas.width;
+      blank.height = canvas.height;
+      return canvas.toDataURL() !== blank.toDataURL();
+    }
+
+    async function handleSignOff() {
+      const lang = state.currentLang || 'th';
+      const tr = translations[lang] || translations.th;
+      if (!state.selectedTechTicket) return;
+      if (!hasSignature()) {
+        showToast(tr.toastSignRequired, tr.toastSignRequiredDesc, 'warning', 4000);
+        return;
+      }
+
+      const signatureDataUrl = canvas.toDataURL('image/png');
+      try {
+        const res = await apiFetch(`${API_BASE}/tickets/${state.selectedTechTicket._id}/sign-off`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signatureDataUrl })
+        }, 'Technician');
+        const data = await res.json();
+        if (res.ok) {
+          showToast(tr.toastCompleted, tr.toastCompletedDesc, 'success', 5000);
+          clearSignaturePad();
+          await refreshTickets();
+        } else {
+          showToast('Sign-off Verification', data.message || 'Verification requirement not met', 'error', 5000);
+        }
+      } catch (e) {
+        showToast(tr.toastConnError, e.message, 'error');
+      }
+    }
+
+    // Preset Location Setter
+    function setPresetLocation(address, lng, lat) {
+      document.getElementById('ticketAddress').value = address;
+      updateCoordInputs(lng, lat);
+      if (state.map && state.marker) {
+        state.map.setView([lat, lng], 15);
+        state.marker.setLatLng([lat, lng]);
+      }
+      showToast('Location Selected', address, 'info', 2500);
+    }
+
+    function updateCoordInputs(lng, lat) {
+      const fixedLng = parseFloat(Number(lng).toFixed(6));
+      const fixedLat = parseFloat(Number(lat).toFixed(6));
+      const elLng = document.getElementById('ticketLng');
+      const elLat = document.getElementById('ticketLat');
+      const elCoord = document.getElementById('coordDisplay');
+      if (elLng) elLng.value = fixedLng;
+      if (elLat) elLat.value = fixedLat;
+      if (elCoord) elCoord.innerText = `[${fixedLng}, ${fixedLat}]`;
+    }
+
+    function initMap() {
+      if (typeof L === 'undefined') return;
+      const mapEl = document.getElementById('map');
+      if (!mapEl) return;
+      const defaultLat = 13.736717;
+      const defaultLng = 100.523186;
+      try {
+        if (!state.map) {
+          state.map = L.map('map').setView([defaultLat, defaultLng], 14);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+          }).addTo(state.map);
+
+          state.marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(state.map);
+          state.marker.on('dragend', function(e) {
+            const coord = e.target.getLatLng();
+            updateCoordInputs(coord.lng, coord.lat);
+          });
+          state.map.on('click', function(e) {
+            state.marker.setLatLng(e.latlng);
+            updateCoordInputs(e.latlng.lng, e.latlng.lat);
+          });
+        }
+      } catch (err) {
+        console.error('Error initializing map:', err);
+      }
+    }
+
+    // App Initialization
+    window.addEventListener('DOMContentLoaded', async () => {
+      setLanguage(state.currentLang, true);
+      initMap();
+      initSignaturePad();
+
+      for (const r of ['Customer', 'Technician', 'Admin']) {
+        await loginRole(r);
+      }
+      await switchRole('Customer');
+
+      // Auto-poll sync every 3s
+      setInterval(async () => {
+        if (!isDrawing) {
+          await refreshTickets(true);
+        }
+      }, 3000);
+    });
+  </script>
+</body>
+</html>
