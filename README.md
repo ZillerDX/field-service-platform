@@ -1,4 +1,4 @@
-﻿# FieldOps Nexus — Enterprise Field Service & Maintenance Platform
+# FieldOps Nexus — Enterprise Field Service & Maintenance Platform
 
 [![Deploy PWA to GitHub Pages](https://github.com/ZillerDX/field-service-platform/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/ZillerDX/field-service-platform/actions/workflows/deploy-pages.yml)
 [![Flutter CI/CD Build Release APK](https://github.com/ZillerDX/field-service-platform/actions/workflows/flutter-release.yml/badge.svg)](https://github.com/ZillerDX/field-service-platform/actions/workflows/flutter-release.yml)
@@ -16,11 +16,14 @@ FieldOps Nexus is an enterprise-grade Field Service & Maintenance management pla
 
 ## 🌐 Live Demos & Direct Downloads
 
-| Platform | Channel | Link |
+| Platform | Architecture / Channel | Link |
 | :--- | :--- | :--- |
-| **PWA Web Client (Prototype)** | GitHub Pages | 👉 [**https://zillerdx.github.io/field-service-platform/**](https://zillerdx.github.io/field-service-platform/) |
-| **Android Production App** | GitHub Releases | 📥 [**Direct Download Release APK (Split-per-ABI)**](https://github.com/ZillerDX/field-service-platform/releases/latest) |
-| **Backend API Gateway** | Local Docker | `http://localhost:5001/api` |
+| **PWA Web Client (Live)** | GitHub Pages | 👉 [**https://zillerdx.github.io/field-service-platform/**](https://zillerdx.github.io/field-service-platform/) |
+| **Android Production App (ARM64)** | `arm64-v8a` (Modern Phones - Recommended) | 📲 [**Download `app-arm64-v8a-release.apk` (18.8 MB)**](https://github.com/ZillerDX/field-service-platform/releases/download/v1.0.0/app-arm64-v8a-release.apk) |
+| **Android Legacy App (ARM32)** | `armeabi-v7a` (Older Android Devices) | 📲 [**Download `app-armeabi-v7a-release.apk` (16.2 MB)**](https://github.com/ZillerDX/field-service-platform/releases/download/v1.0.0/app-armeabi-v7a-release.apk) |
+| **Android Emulator (x86_64)** | `x86_64` (Android Studio / ChromeOS) | 📲 [**Download `app-x86_64-release.apk` (20.3 MB)**](https://github.com/ZillerDX/field-service-platform/releases/download/v1.0.0/app-x86_64-release.apk) |
+| **GitHub Release v1.0.0** | Release Package & SHA Verification | 📦 [**View GitHub Release v1.0.0**](https://github.com/ZillerDX/field-service-platform/releases/tag/v1.0.0) |
+| **Backend API Gateway** | Local Docker Compose | `http://localhost:5001/api` |
 
 ---
 
