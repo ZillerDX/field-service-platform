@@ -1,4 +1,4 @@
-﻿import 'package:test/test.dart';
+import 'package:test/test.dart';
 import 'package:field_service_mobile/core/utils/geofence_util.dart';
 
 void main() {

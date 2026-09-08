@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 
 class GeofenceUtil {
   static const double earthRadiusMeters = 6371000.0;

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:field_service_mobile/core/theme/app_theme.dart';
 
 class SignaturePadWidget extends StatefulWidget {

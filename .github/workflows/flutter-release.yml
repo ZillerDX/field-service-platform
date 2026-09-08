@@ -1,4 +1,4 @@
-﻿name: Flutter CI/CD Build Release APK
+name: Flutter CI/CD Build Release APK
 
 on:
   push:

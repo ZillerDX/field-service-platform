@@ -1,4 +1,4 @@
-﻿class ApiConstants {
+class ApiConstants {
   static const String defaultBaseUrl = 'http://10.0.2.2:5001/api';
   static const String webBaseUrl = 'http://localhost:5001/api';
 

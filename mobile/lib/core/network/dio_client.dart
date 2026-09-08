@@ -1,4 +1,4 @@
-﻿import 'package:dio/dio.dart';
+import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../utils/offline_cache.dart';
 

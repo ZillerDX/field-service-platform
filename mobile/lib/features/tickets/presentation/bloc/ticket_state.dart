@@ -1,4 +1,4 @@
-﻿import 'package:equatable/equatable.dart';
+import 'package:equatable/equatable.dart';
 import '../../domain/entities/ticket_entity.dart';
 
 abstract class TicketState extends Equatable {
