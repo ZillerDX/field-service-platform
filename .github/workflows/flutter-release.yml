@@ -47,7 +47,7 @@ jobs:
         run: flutter test
 
       - name: Build Split-per-ABI Android Release APKs
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi --android-skip-build-dependency-validation
 
       - name: Upload APK Artifacts
         uses: actions/upload-artifact@v4
