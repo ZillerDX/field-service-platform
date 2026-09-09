@@ -7,17 +7,20 @@ import { AuthenticatedRequest } from '../middleware/auth';
 
 export async function login(req: Request, res: Response): Promise<void> {
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
+    const identifier = (username || email || '').toLowerCase().trim();
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       res.status(400).json({
         error: 'BAD_REQUEST',
-        message: 'Email and password are required'
+        message: 'Username/Email and password are required'
       });
       return;
     }
 
-    const user = await UserModel.findOne({ email: email.toLowerCase().trim() });
+    const user = await UserModel.findOne({
+      $or: [{ email: identifier }, { username: identifier }]
+    });
 
     if (!user || !user.isActive) {
       res.status(401).json({
@@ -53,6 +56,7 @@ export async function login(req: Request, res: Response): Promise<void> {
       user: {
         id: user._id,
         fullName: user.fullName,
+        username: user.username,
         email: user.email,
         role: user.role,
         phoneNumber: user.phoneNumber,
@@ -77,6 +81,7 @@ export async function getMe(req: AuthenticatedRequest, res: Response): Promise<v
     user: {
       id: req.user._id,
       fullName: req.user.fullName,
+      username: req.user.username,
       email: req.user.email,
       role: req.user.role,
       phoneNumber: req.user.phoneNumber,

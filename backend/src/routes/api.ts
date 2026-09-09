@@ -14,6 +14,7 @@ import {
   addAttachment,
   signOffTicket
 } from '../controllers/ticketController';
+import { createTechnician, getTechnicians } from '../controllers/technicianController';
 import { authenticateToken, requireRole } from '../middleware/auth';
 import { config } from '../config';
 
@@ -104,5 +105,11 @@ router.post(
   upload.single('signatureImage'),
   signOffTicket
 );
+
+// ==========================================
+// 3. Technician Management Endpoints (Admin)
+// ==========================================
+router.post('/technicians', authenticateToken, requireRole(['Admin']), createTechnician);
+router.get('/technicians', authenticateToken, requireRole(['Admin']), getTechnicians);
 
 export default router;

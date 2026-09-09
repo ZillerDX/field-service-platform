@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:field_service_mobile/core/theme/app_theme.dart';
 
 class SignaturePadWidget extends StatefulWidget {
@@ -89,21 +90,32 @@ class _SignaturePadWidgetState extends State<SignaturePadWidget> {
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10),
-              child: GestureDetector(
-                onPanUpdate: (details) {
-                  setState(() {
-                    final renderBox = context.findRenderObject() as RenderBox?;
-                    if (renderBox != null) {
-                      final localPos = renderBox.globalToLocal(details.globalPosition);
-                      _points.add(localPos);
-                    }
-                  });
-                },
-                onPanEnd: (_) {
-                  _points.add(null);
+              child: RawGestureDetector(
+                gestures: {
+                  PanGestureRecognizer: GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
+                    () => PanGestureRecognizer(),
+                    (PanGestureRecognizer instance) {
+                      instance.onStart = (details) {
+                        setState(() {
+                          _points.add(details.localPosition);
+                        });
+                      };
+                      instance.onUpdate = (details) {
+                        setState(() {
+                          _points.add(details.localPosition);
+                        });
+                      };
+                      instance.onEnd = (details) {
+                        setState(() {
+                          _points.add(null);
+                        });
+                      };
+                    },
+                  ),
                 },
                 child: CustomPaint(
                   painter: _SignaturePainter(points: _points),
+                  size: Size.infinite,
                   child: Center(
                     child: _points.isEmpty
                         ? const Text(

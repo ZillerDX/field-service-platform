@@ -55,4 +55,10 @@ class OfflineCache {
     await prefs.remove('jwt_token');
     await prefs.remove(_authUserDataKey);
   }
+
+  /// Clear offline tickets cache
+  static Future<void> clearAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_cachedTicketsKey);
+  }
 }

@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../utils/offline_cache.dart';
@@ -6,10 +8,20 @@ class DioClient {
   static DioClient? _instance;
   late final Dio dio;
 
+  static String resolveBaseUrl() {
+    if (kIsWeb) return ApiConstants.webBaseUrl;
+    try {
+      if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+        return 'http://localhost:5001/api';
+      }
+    } catch (_) {}
+    return ApiConstants.defaultBaseUrl;
+  }
+
   DioClient._internal() {
     dio = Dio(
       BaseOptions(
-        baseUrl: ApiConstants.defaultBaseUrl,
+        baseUrl: resolveBaseUrl(),
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
         headers: {

@@ -126,46 +126,53 @@ class _RadarGeofenceWidgetState extends State<RadarGeofenceWidget> with SingleTi
           ),
           const SizedBox(height: 16),
 
-          // Animated Radar Visualizer
+          // Animated Radar Visualizer with strict fixed bounding box (prevents scroll jitter)
           Center(
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                AnimatedBuilder(
-                  animation: _pulseController,
-                  builder: (context, child) {
-                    final scale = 1.0 + (_pulseController.value * 0.35);
-                    final opacity = (1.0 - _pulseController.value).clamp(0.0, 1.0);
-                    return Container(
-                      width: 90 * scale,
-                      height: 90 * scale,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: radarColor.withValues(alpha: opacity * 0.5),
-                          width: 2,
+            child: SizedBox(
+              width: 130,
+              height: 130,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  AnimatedBuilder(
+                    animation: _pulseController,
+                    builder: (context, child) {
+                      final scale = 1.0 + (_pulseController.value * 0.35);
+                      final opacity = (1.0 - _pulseController.value).clamp(0.0, 1.0);
+                      return SizedBox(
+                        width: 90 * scale,
+                        height: 90 * scale,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: radarColor.withValues(alpha: opacity * 0.5),
+                              width: 2,
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-                Container(
-                  width: 76,
-                  height: 76,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: radarColor.withValues(alpha: 0.15),
-                    border: Border.all(color: radarColor, width: 2),
+                      );
+                    },
                   ),
-                  child: Center(
-                    child: Icon(
-                      isWithin ? Icons.check_circle_outline_rounded : Icons.location_searching_rounded,
-                      color: radarColor,
-                      size: 34,
+                  Container(
+                    width: 76,
+                    height: 76,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: radarColor.withValues(alpha: 0.15),
+                      border: Border.all(color: radarColor, width: 2),
+                    ),
+                    child: Center(
+                      child: Icon(
+                        isWithin ? Icons.check_circle_outline_rounded : Icons.location_searching_rounded,
+                        color: radarColor,
+                        size: 34,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),

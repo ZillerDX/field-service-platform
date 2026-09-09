@@ -1,28 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:field_service_mobile/core/theme/app_theme.dart';
-import 'package:field_service_mobile/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:field_service_mobile/features/auth/presentation/bloc/auth_event.dart';
-import 'package:field_service_mobile/features/tickets/domain/entities/ticket_entity.dart';
-import 'package:field_service_mobile/features/tickets/presentation/bloc/ticket_bloc.dart';
-import 'package:field_service_mobile/features/tickets/presentation/bloc/ticket_event.dart';
-import 'package:field_service_mobile/features/tickets/presentation/bloc/ticket_state.dart';
+import '../../../../core/localization/app_language.dart';
+import '../../../../core/theme/app_theme.dart';
+import '../../../tickets/domain/entities/ticket_entity.dart';
+import '../../../tickets/presentation/bloc/ticket_bloc.dart';
+import '../../../tickets/presentation/bloc/ticket_event.dart';
+import '../../../tickets/presentation/bloc/ticket_state.dart';
 
 class TechWorkspaceScreen extends StatefulWidget {
-  const TechWorkspaceScreen({super.key});
+  final String initialFilter;
+  const TechWorkspaceScreen({super.key, this.initialFilter = 'All'});
 
   @override
   State<TechWorkspaceScreen> createState() => _TechWorkspaceScreenState();
 }
 
 class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
-  String _selectedFilter = 'All';
+  late String _selectedFilter;
+  final AppLanguage _lang = AppLanguage();
 
   @override
   void initState() {
     super.initState();
+    _selectedFilter = widget.initialFilter;
+    _lang.addListener(_onLanguageChanged);
     context.read<TicketBloc>().add(const FetchTicketsEvent());
+  }
+
+  @override
+  void dispose() {
+    _lang.removeListener(_onLanguageChanged);
+    super.dispose();
+  }
+
+  void _onLanguageChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -30,25 +43,43 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
     return Scaffold(
       backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Row(
+        titleSpacing: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/technician');
+            }
+          },
+        ),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.handyman_outlined, color: AppTheme.primaryLight, size: 22),
-            SizedBox(width: 8),
-            Text('พื้นที่ทำงานช่าง / Technician Workspace'),
+            const Icon(Icons.handyman_outlined, color: AppTheme.primaryLight, size: 20),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                _lang.t('รายการงานช่าง', 'Technician Workspace'),
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+              ),
+            ),
           ],
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
+            tooltip: _lang.t('รีเฟรช', 'Refresh'),
             onPressed: () {
               context.read<TicketBloc>().add(const FetchTicketsEvent(forceRefresh: true));
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout_rounded),
-            onPressed: () {
-              context.read<AuthBloc>().add(LogoutSubmittedEvent());
-            },
+            icon: const Icon(Icons.account_circle_outlined),
+            tooltip: _lang.t('โปรไฟล์', 'Profile'),
+            onPressed: () => context.push('/profile'),
           ),
         ],
       ),
@@ -71,6 +102,8 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
             return t.status == _selectedFilter;
           }).toList();
 
+          final assignedCount = allTickets.where((t) => t.status == 'Assigned').length;
+
           return Column(
             children: [
               if (isOffline)
@@ -78,13 +111,18 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
                   width: double.infinity,
                   color: AppTheme.warning.withValues(alpha: 0.15),
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(Icons.cloud_off_rounded, size: 16, color: AppTheme.warning),
-                      SizedBox(width: 8),
-                      Text(
-                        'กำลังใช้งานโหมดออฟไลน์ ข้อมูลจะซิงค์เมื่อเชื่อมต่อเน็ต',
-                        style: TextStyle(fontSize: 12, color: AppTheme.warning, fontWeight: FontWeight.w500),
+                      const Icon(Icons.cloud_off_rounded, size: 16, color: AppTheme.warning),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          _lang.t(
+                            'กำลังใช้งานโหมดออฟไลน์ ข้อมูลจะซิงค์เมื่อเชื่อมต่อเน็ต',
+                            'Offline mode active. Changes will sync when reconnected.',
+                          ),
+                          style: const TextStyle(fontSize: 12, color: AppTheme.warning, fontWeight: FontWeight.w500),
+                        ),
                       ),
                     ],
                   ),
@@ -96,21 +134,35 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   children: [
-                    _buildFilterChip('All', 'ทั้งหมด (${allTickets.length})'),
+                    _buildFilterChip('All', _lang.t('ทั้งหมด (${allTickets.length})', 'All (${allTickets.length})')),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Assigned', 'งานใหม่ / มอบหมายแล้ว'),
+                    _buildFilterChip(
+                      'Assigned',
+                      _lang.t('มอบหมายแล้ว ($assignedCount)', 'Assigned ($assignedCount)'),
+                      badgeCount: assignedCount,
+                    ),
                     const SizedBox(width: 8),
-                    _buildFilterChip('In Progress', 'กำลังปฏิบัติงาน'),
+                    _buildFilterChip('In Progress', _lang.t('กำลังทำ', 'In Progress')),
                     const SizedBox(width: 8),
-                    _buildFilterChip('Completed', 'ปิดงานเรียบร้อย'),
+                    _buildFilterChip('Completed', _lang.t('ปิดงานแล้ว', 'Completed')),
                   ],
                 ),
               ),
 
               Expanded(
                 child: filtered.isEmpty
-                    ? const Center(
-                        child: Text('ไม่มีรายการงานตามเงื่อนไขที่เลือก', style: TextStyle(color: AppTheme.textMuted)),
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.inbox_outlined, size: 48, color: AppTheme.textMuted.withValues(alpha: 0.5)),
+                            const SizedBox(height: 12),
+                            Text(
+                              _lang.t('ไม่มีรายการงานตามเงื่อนไขที่เลือก', 'No tickets found for this filter'),
+                              style: const TextStyle(color: AppTheme.textMuted, fontSize: 14),
+                            ),
+                          ],
+                        ),
                       )
                     : ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -128,10 +180,29 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
     );
   }
 
-  Widget _buildFilterChip(String filterKey, String label) {
+  Widget _buildFilterChip(String filterKey, String label, {int? badgeCount}) {
     final isSelected = _selectedFilter == filterKey;
+    final isAssigned = filterKey == 'Assigned';
+    final hasActiveAssigned = isAssigned && (badgeCount ?? 0) > 0;
+
     return ChoiceChip(
-      label: Text(label),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          if (hasActiveAssigned && !isSelected) ...[
+            const SizedBox(width: 6),
+            Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppTheme.danger,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ],
+        ],
+      ),
       selected: isSelected,
       selectedColor: AppTheme.primary,
       backgroundColor: AppTheme.surface,
@@ -147,6 +218,25 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
   }
 
   Widget _buildTechCard(BuildContext context, TicketEntity ticket) {
+    Color statusColor;
+    String statusLabel;
+
+    switch (ticket.status) {
+      case 'In Progress':
+        statusColor = AppTheme.warning;
+        statusLabel = _lang.t('กำลังทำ', 'In Progress');
+        break;
+      case 'Completed':
+        statusColor = AppTheme.success;
+        statusLabel = _lang.t('ปิดงานแล้ว', 'Completed');
+        break;
+      case 'Assigned':
+      default:
+        statusColor = AppTheme.danger;
+        statusLabel = _lang.t('งานใหม่', 'Assigned');
+        break;
+    }
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -167,12 +257,13 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.15),
+                    color: statusColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
-                    ticket.status,
-                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppTheme.primaryLight),
+                    statusLabel,
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: statusColor),
                   ),
                 ),
               ],
@@ -210,7 +301,7 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
                   child: OutlinedButton.icon(
                     onPressed: () => context.push('/ticket/${ticket.id}'),
                     icon: const Icon(Icons.info_outline, size: 16),
-                    label: const Text('ดูรายละเอียด', style: TextStyle(fontSize: 12)),
+                    label: Text(_lang.t('รายละเอียด', 'Details'), style: const TextStyle(fontSize: 12)),
                     style: OutlinedButton.styleFrom(minimumSize: const Size(0, 40)),
                   ),
                 ),
@@ -220,7 +311,9 @@ class _TechWorkspaceScreenState extends State<TechWorkspaceScreen> {
                     onPressed: () => context.push('/technician/job/${ticket.id}'),
                     icon: const Icon(Icons.play_arrow_rounded, size: 16),
                     label: Text(
-                      ticket.status == 'Completed' ? 'ดูรายงาน' : 'ปฏิบัติงาน',
+                      ticket.status == 'Completed'
+                          ? _lang.t('ดูรายงาน', 'View Report')
+                          : _lang.t('ปฏิบัติงาน', 'Execute Job'),
                       style: const TextStyle(fontSize: 12),
                     ),
                     style: ElevatedButton.styleFrom(minimumSize: const Size(0, 40)),

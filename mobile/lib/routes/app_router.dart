@@ -6,9 +6,11 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/tickets/presentation/screens/customer_portal_screen.dart';
 import '../features/tickets/presentation/screens/create_ticket_screen.dart';
 import '../features/tickets/presentation/screens/ticket_detail_screen.dart';
+import '../features/technician/presentation/screens/tech_hub_screen.dart';
 import '../features/technician/presentation/screens/tech_workspace_screen.dart';
 import '../features/technician/presentation/screens/job_execution_screen.dart';
 import '../features/dispatcher/presentation/screens/dispatcher_screen.dart';
+import '../features/profile/presentation/screens/profile_screen.dart';
 
 class AppRouter {
   static GoRouter createRouter(AuthBloc authBloc) {
@@ -25,7 +27,7 @@ class AppRouter {
 
         if (authState is Authenticated) {
           if (isLoggingIn) {
-            final role = authState.user.role;
+            final role = authState.user.role.toLowerCase();
             if (role == 'technician') return '/technician';
             if (role == 'admin') return '/dispatcher';
             return '/customer';
@@ -56,7 +58,14 @@ class AppRouter {
         ),
         GoRoute(
           path: '/technician',
-          builder: (context, state) => const TechWorkspaceScreen(),
+          builder: (context, state) => const TechHubScreen(),
+        ),
+        GoRoute(
+          path: '/technician/workspace',
+          builder: (context, state) {
+            final filter = state.uri.queryParameters['filter'] ?? 'All';
+            return TechWorkspaceScreen(initialFilter: filter);
+          },
         ),
         GoRoute(
           path: '/technician/job/:id',
@@ -68,6 +77,10 @@ class AppRouter {
         GoRoute(
           path: '/dispatcher',
           builder: (context, state) => const DispatcherScreen(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfileScreen(),
         ),
       ],
     );

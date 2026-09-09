@@ -15,6 +15,7 @@ export interface ITechnicianProfile {
 export interface IUser extends Document {
   _id: Types.ObjectId;
   fullName: string;
+  username?: string;
   email: string;
   passwordHash: string;
   role: UserRole;
@@ -44,6 +45,7 @@ const PointSchema = new Schema(
 export const UserSchema = new Schema<IUser>(
   {
     fullName: { type: String, required: true, trim: true },
+    username: { type: String, unique: true, sparse: true, trim: true, lowercase: true },
     email: { type: String, required: true, unique: true, index: true, lowercase: true, trim: true },
     passwordHash: { type: String, required: true },
     role: { type: String, required: true, enum: ['Customer', 'Technician', 'Admin'], index: true },
